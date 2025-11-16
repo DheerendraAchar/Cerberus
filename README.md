@@ -12,21 +12,21 @@
 - [x] Unit tests with mocks
 - [x] CI/CD with GitHub Actions
 
-## 📚 Complete Documentation
+##  Complete Documentation
 
 This project includes comprehensive documentation:
 
-- 📘 **[README.md](README.md)** (this file) — Quick start and overview
-- 📗 **[TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)** — Deep dive into what/why/how
-- 📙 **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** — Commands, troubleshooting, daily use
-- 📅 **[TIMELINE.md](TIMELINE.md)** — Project phases and roadmap
-- ✅ **[PHASE1_SUMMARY.md](PHASE1_SUMMARY.md)** — Phase 1 achievements
-- 📊 **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** — Visual project overview
-- 📚 **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** — Documentation index
+-  **[README.md](README.md)** (this file) — Quick start and overview
+-  **[TECHNICAL_DOCUMENTATION.md](TECHNICAL_DOCUMENTATION.md)** — Deep dive into what/why/how
+-  **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** — Commands, troubleshooting, daily use
+-  **[TIMELINE.md](TIMELINE.md)** — Project phases and roadmap
+-  **[PHASE1_SUMMARY.md](PHASE1_SUMMARY.md)** — Phase 1 achievements
+-  **[PROJECT_SUMMARY.md](PROJECT_SUMMARY.md)** — Visual project overview
+-  **[DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md)** — Documentation index
 
 **New to the project?** Start with this README, then see [DOCUMENTATION_INDEX.md](DOCUMENTATION_INDEX.md) for a guide to all docs.
 
-## 🗓️ Project Timeline
+##  Project Timeline
 
 See [TIMELINE.md](TIMELINE.md) for the full phase breakdown and milestones.s/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/major_projekt/actions/workflows/ci.yml)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
@@ -34,7 +34,7 @@ See [TIMELINE.md](TIMELINE.md) for the full phase breakdown and milestones.s/ci.
 
 An automated testing framework for evaluating and hardening AI models against adversarial attacks. Built for Dayananda Sagar University CSE Project Phase I (2025-2026).
 
-## 🎯 Project Overview
+##  Project Overview
 
 Project Cerberus provides a robust, containerized pipeline to:
 - Load pre-trained PyTorch models
@@ -43,13 +43,13 @@ Project Cerberus provides a robust, containerized pipeline to:
 - Generate comprehensive evaluation reports
 
 **Key Features:**
-- 🐍 Pure Python with PyTorch and IBM Adversarial Robustness Toolbox (ART)
+-  Pure Python with PyTorch and IBM Adversarial Robustness Toolbox (ART)
 - 🐳 Fully containerized with Docker (CPU-only, no GPU required)
-- 📊 YAML-based configuration for reproducible experiments
-- 📈 HTML/PDF report generation with metrics and visualizations
-- 🧪 Modular architecture with extensive unit tests
+-  YAML-based configuration for reproducible experiments
+-  HTML/PDF report generation with metrics and visualizations
+-  Modular architecture with extensive unit tests
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Option 1: Using Docker (Recommended)
 
@@ -80,13 +80,13 @@ pip install -r requirements.txt
 python run_demo.py --config configs/sample_config.yaml
 ```
 
-## 📋 Requirements
+##  Requirements
 
 - Python 3.9+
 - Docker (for containerized runs)
 - ~2GB disk space for dependencies and datasets
 
-## 🧪 Running Tests
+##  Running Tests
 
 ```bash
 # Install test dependencies
@@ -139,7 +139,7 @@ output:
   report_path: outputs/report.html
 ```
 
-## 📊 Phase 1 Deliverables (Current)
+##  Phase 1 Deliverables (Current)
 
 - [x] Scaffold and package structure
 - [x] Config loader (YAML)
@@ -151,11 +151,11 @@ output:
 - [x] Unit tests with mocks
 - [x] CI/CD with GitHub Actions
 
-## 🗓️ Project Timeline
+##  Project Timeline
 
 See [TIMELINE.md](TIMELINE.md) for the full phase breakdown and milestones.
 
-## 👥 Team
+##  Team
 
 - Chhavi Sharma (ENG22CS0278)
 - Gaurav Bhandare (ENG22CS0305)
@@ -165,12 +165,11 @@ See [TIMELINE.md](TIMELINE.md) for the full phase breakdown and milestones.
 **Supervisor:** Prof. Dharmendra D P  
 **Batch:** 144 | **Department:** CSE, School of Engineering, Dayananda Sagar University
 
-## 📝 License
+##  License
 
 This project is part of an academic submission. All rights reserved.
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - IBM Adversarial Robustness Toolbox (ART)
 - PyTorch Team
-- Dayananda Sagar University

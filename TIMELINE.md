@@ -5,7 +5,7 @@
 
 ---
 
-## 📅 Phase Breakdown
+##  Phase Breakdown
 
 ### Phase 0: Planning & Setup ✅ (Completed: Nov 2025)
 
@@ -129,7 +129,7 @@ Complete, production-ready framework ready for academic submission and potential
 
 ---
 
-## 📊 Progress Summary
+##  Progress Summary
 
 | Phase | Status | Completion |
 |-------|--------|------------|
@@ -143,7 +143,7 @@ Complete, production-ready framework ready for academic submission and potential
 
 ---
 
-## 🎯 Next Immediate Steps
+##  Next Immediate Steps
 
 1. **Implement adversarial retraining** (Phase 2)
 2. **Add visualization to reports** (plots, sample images)
@@ -166,8 +166,8 @@ Complete, production-ready framework ready for academic submission and potential
 ## 📞 Contact & Support
 
 **Supervisor:** Prof. Dharmendra D P  
-**Team Lead:** [Add contact]  
-**Repository:** [GitHub URL]
+**Team Lead:** dheerudivya0408@gmail.com 
+**Repository:** https://github.com/DheerendraAchar/Cerberus
 
 ---
 
