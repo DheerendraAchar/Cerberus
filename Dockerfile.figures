@@ -1,0 +1,33 @@
+# Dockerfile for generating figures (extends base project image)
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt .
+
+# Install CPU-only PyTorch first
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu \
+    torch==2.0.1+cpu \
+    torchvision==0.15.2+cpu
+
+# Install other dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install additional deps for figure generation
+RUN pip install --no-cache-dir numpy scikit-learn
+
+# Copy application code
+COPY cerberus/ cerberus/
+COPY scripts/generate_figures.py scripts/generate_figures.py
+
+# Create figures output directory
+RUN mkdir -p figures
+
+# Run figure generation
+CMD ["python", "scripts/generate_figures.py", "--device", "cpu", "--eps-list", "0.0", "0.01", "0.02", "0.03", "0.05", "0.07", "0.10", "--fgsm-eps", "0.03"]
