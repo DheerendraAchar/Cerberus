@@ -59,29 +59,32 @@ else:
 # ---------------------------------------------------------------------------
 # Utility: Tiny demo CNN (mirrors concept used in cerberus.cli)
 # ---------------------------------------------------------------------------
-class TinyCNN(nn.Module):
-    def __init__(self, num_classes: int = 10) -> None:
-        super().__init__()
-        self.features = nn.Sequential(
-            nn.Conv2d(3, 32, 3, padding=1),
-            nn.ReLU(),
-            nn.Conv2d(32, 64, 3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-            nn.Conv2d(64, 128, 3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-        )
-        self.classifier = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(8 * 8 * 128, 256),
-            nn.ReLU(),
-            nn.Linear(256, num_classes),
-        )
+def _get_tiny_cnn_class():
+    """Return TinyCNN class definition (requires torch to be imported)."""
+    class TinyCNN(nn.Module):
+        def __init__(self, num_classes: int = 10) -> None:
+            super().__init__()
+            self.features = nn.Sequential(
+                nn.Conv2d(3, 32, 3, padding=1),
+                nn.ReLU(),
+                nn.Conv2d(32, 64, 3, padding=1),
+                nn.ReLU(),
+                nn.MaxPool2d(2),
+                nn.Conv2d(64, 128, 3, padding=1),
+                nn.ReLU(),
+                nn.MaxPool2d(2),
+            )
+            self.classifier = nn.Sequential(
+                nn.Flatten(),
+                nn.Linear(8 * 8 * 128, 256),
+                nn.ReLU(),
+                nn.Linear(256, num_classes),
+            )
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:  # type: ignore[override]
-        x = self.features(x)
-        return self.classifier(x)
+        def forward(self, x):  # type: ignore[override]
+            x = self.features(x)
+            return self.classifier(x)
+    return TinyCNN
 
 
 # ---------------------------------------------------------------------------
@@ -263,7 +266,8 @@ def perturbation_heatmap(model: nn.Module, device: object, eps: float, save_path
 # Orchestration
 # ---------------------------------------------------------------------------
 
-def build_model(device: object) -> nn.Module:
+def build_model(device: object):  # type: ignore
+    TinyCNN = _get_tiny_cnn_class()
     model = TinyCNN().to(device)
     # Random initialization is fine for qualitative demonstration; optionally load trained weights if available.
     return model
