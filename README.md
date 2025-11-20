@@ -139,6 +139,38 @@ output:
   report_path: outputs/report.html
 ```
 
+##  Generating Result Figures (Adversarial Evaluation)
+
+Phase 1 includes a standalone script to produce figures for your report:
+
+Figures generated:
+- Clean vs FGSM adversarial sample grid
+- Accuracy vs epsilon curve (FGSM)
+- Confusion matrices (clean vs FGSM)
+- Perturbation heatmap for a single sample
+
+Run after installing PyTorch, torchvision, matplotlib, scikit-learn:
+
+```bash
+python scripts/generate_figures.py \
+  --device cpu \
+  --eps-list 0.0 0.01 0.02 0.03 0.05 0.07 0.10 \
+  --samples 12 \
+  --fgsm-eps 0.03
+```
+
+Outputs are saved in `figures/`:
+```
+figures/
+  fgsm_examples_eps0.03.png
+  fgsm_accuracy_vs_epsilon.png
+  confusion_clean.png
+  confusion_fgsm_eps0.03.png
+  fgsm_perturbation_heatmap_eps0.03.png
+```
+
+Use these images directly in the Results section of your report. For future phases (PGD, defenses) extend the script similarly.
+
 ##  Phase 1 Deliverables (Current)
 
 - [x] Scaffold and package structure

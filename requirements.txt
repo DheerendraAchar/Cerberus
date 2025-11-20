@@ -4,6 +4,7 @@ matplotlib>=3.6
 jinja2>=3.1
 # ART may be optional in CPU-only environments; install if you plan to run attacks
 adversarial-robustness-toolbox>=1.10
+scikit-learn>=1.2
 
 # NOTE: PyTorch and torchvision are intentionally omitted here to allow
 # using CPU-only wheels from the official PyTorch CPU index in the Docker
