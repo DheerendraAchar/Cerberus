@@ -128,7 +128,7 @@ def generate_fgsm_examples(model: nn.Module, device: object, eps: float, n: int,
     classes = test_set.classes
     fig, axes = plt.subplots(2, n, figsize=(n * 1.2, 3))
     for i in range(n):
-        axes[0, i].imshow(images[i].cpu().permute(1, 2, 0))
+        axes[0, i].imshow(images[i].detach().cpu().permute(1, 2, 0))
         axes[0, i].axis("off")
         axes[0, i].set_title(classes[pred_clean[i].item()], fontsize=8)
         axes[1, i].imshow(adv_images[i].detach().cpu().permute(1, 2, 0))
@@ -148,7 +148,9 @@ def fgsm_accuracy_curve(model: nn.Module, device: object, eps_values: Iterable[f
     _require(plt is not None, "matplotlib", _MPL_IMPORT_ERROR)
     transform = torchvision.transforms.ToTensor()
     test_ds = torchvision.datasets.CIFAR10("./data", train=False, download=True, transform=transform)
-    loader = torch.utils.data.DataLoader(test_ds, batch_size=128, shuffle=False)
+    # Use only first 2000 samples for faster evaluation
+    subset_ds = torch.utils.data.Subset(test_ds, range(min(2000, len(test_ds))))
+    loader = torch.utils.data.DataLoader(subset_ds, batch_size=128, shuffle=False)
 
     def accuracy(eps: float) -> float:
         correct = 0
@@ -250,13 +252,181 @@ def perturbation_heatmap(model: nn.Module, device: object, eps: float, save_path
     loss = nn.functional.cross_entropy(out, target)
     model.zero_grad()
     loss.backward()
-    adv = torch.clamp(x + eps * x.grad.detach().sign(), 0, 1)
-    diff = (adv - x).abs().squeeze(0).mean(0).cpu()  # average over channels
+    adv = torch.clamp(x + eps * x.grad.detach().sign(), 0, 1).detach()
+    diff = (adv - x.detach()).abs().squeeze(0).mean(0).cpu()  # average over channels
     plt.figure(figsize=(4, 4))
     plt.imshow(diff, cmap="inferno")
     plt.title(f"FGSM Perturbation Heatmap (eps={eps})")
     plt.axis("off")
     plt.colorbar(fraction=0.046, pad=0.04)
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=160)
+    plt.close()
+
+
+def per_class_robustness(model: nn.Module, device: object, eps: float, save_path: str) -> None:
+    """Generate bar chart showing per-class accuracy degradation under FGSM attack."""
+    _require(torch is not None and torchvision is not None, "torch/torchvision", _TORCH_IMPORT_ERROR)
+    _require(plt is not None, "matplotlib", _MPL_IMPORT_ERROR)
+    import numpy as np
+    
+    transform = torchvision.transforms.ToTensor()
+    test_ds = torchvision.datasets.CIFAR10("./data", train=False, download=True, transform=transform)
+    loader = torch.utils.data.DataLoader(test_ds, batch_size=128, shuffle=False)
+    
+    classes = test_ds.classes
+    class_correct_clean = [0] * len(classes)
+    class_correct_adv = [0] * len(classes)
+    class_total = [0] * len(classes)
+    
+    model.eval()
+    for x, y in loader:
+        x, y = x.to(device), y.to(device)
+        
+        # Clean predictions
+        out_clean = model(x)
+        _, pred_clean = out_clean.max(1)
+        
+        # Adversarial predictions
+        x.requires_grad = True
+        out = model(x)
+        loss = nn.functional.cross_entropy(out, y)
+        model.zero_grad()
+        loss.backward()
+        adv_x = torch.clamp(x + eps * x.grad.detach().sign(), 0, 1)
+        out_adv = model(adv_x)
+        _, pred_adv = out_adv.max(1)
+        
+        # Track per-class accuracy
+        for i in range(len(y)):
+            label = y[i].item()
+            class_total[label] += 1
+            if pred_clean[i] == label:
+                class_correct_clean[label] += 1
+            if pred_adv[i] == label:
+                class_correct_adv[label] += 1
+    
+    # Calculate accuracies
+    acc_clean = [100 * class_correct_clean[i] / class_total[i] if class_total[i] > 0 else 0 
+                 for i in range(len(classes))]
+    acc_adv = [100 * class_correct_adv[i] / class_total[i] if class_total[i] > 0 else 0 
+               for i in range(len(classes))]
+    
+    # Plot
+    x_pos = np.arange(len(classes))
+    width = 0.35
+    
+    fig, ax = plt.subplots(figsize=(10, 5))
+    bars1 = ax.bar(x_pos - width/2, acc_clean, width, label='Clean', color='steelblue', alpha=0.8)
+    bars2 = ax.bar(x_pos + width/2, acc_adv, width, label=f'FGSM (ε={eps})', color='orangered', alpha=0.8)
+    
+    ax.set_xlabel('Class', fontsize=11)
+    ax.set_ylabel('Accuracy (%)', fontsize=11)
+    ax.set_title(f'Per-Class Robustness: Clean vs FGSM Attack (ε={eps})', fontsize=12, fontweight='bold')
+    ax.set_xticks(x_pos)
+    ax.set_xticklabels(classes, rotation=45, ha='right', fontsize=9)
+    ax.legend(fontsize=10)
+    ax.grid(axis='y', alpha=0.3, linestyle='--')
+    ax.set_ylim([0, 100])
+    
+    # Add accuracy drop annotations
+    for i in range(len(classes)):
+        drop = acc_clean[i] - acc_adv[i]
+        if drop > 5:  # Only annotate significant drops
+            ax.text(i, max(acc_clean[i], acc_adv[i]) + 2, f'-{drop:.0f}%', 
+                   ha='center', va='bottom', fontsize=7, color='red', fontweight='bold')
+    
+    plt.tight_layout()
+    plt.savefig(save_path, dpi=160)
+    plt.close()
+
+
+def attack_success_rate_by_epsilon(model: nn.Module, device: object, eps_values: Iterable[float], save_path: str) -> None:
+    """Generate plot showing attack success rate vs epsilon (faster version using subset)."""
+    _require(torch is not None and torchvision is not None, "torch/torchvision", _TORCH_IMPORT_ERROR)
+    _require(plt is not None, "matplotlib", _MPL_IMPORT_ERROR)
+    import numpy as np
+    
+    transform = torchvision.transforms.ToTensor()
+    test_ds = torchvision.datasets.CIFAR10("./data", train=False, download=True, transform=transform)
+    # Use subset for faster computation
+    subset_ds = torch.utils.data.Subset(test_ds, range(min(1000, len(test_ds))))
+    loader = torch.utils.data.DataLoader(subset_ds, batch_size=128, shuffle=False)
+    
+    eps_list = [0.0] + list(eps_values)
+    success_rates = []
+    accuracies = []
+    
+    model.eval()
+    for eps in eps_list:
+        total = 0
+        correct = 0
+        originally_correct = 0
+        fooled = 0
+        
+        for x, y in loader:
+            x, y = x.to(device), y.to(device)
+            
+            # Clean prediction
+            with torch.no_grad():
+                out_clean = model(x)
+                _, pred_clean = out_clean.max(1)
+                originally_correct += pred_clean.eq(y).sum().item()
+            
+            # Adversarial prediction
+            if eps > 0:
+                x.requires_grad = True
+                out = model(x)
+                loss = nn.functional.cross_entropy(out, y)
+                model.zero_grad()
+                loss.backward()
+                x_adv = torch.clamp(x + eps * x.grad.detach().sign(), 0, 1)
+            else:
+                x_adv = x
+            
+            with torch.no_grad():
+                out_adv = model(x_adv)
+                _, pred_adv = out_adv.max(1)
+                correct += pred_adv.eq(y).sum().item()
+                # Count fooled: originally correct but now wrong
+                mask = pred_clean.eq(y)  # originally correct
+                fooled += (pred_adv[mask] != y[mask]).sum().item()
+            
+            total += y.size(0)
+        
+        accuracy = 100 * correct / total
+        # Success rate = percentage of originally correct samples that are now wrong
+        success_rate = 100 * fooled / originally_correct if originally_correct > 0 else 0
+        
+        accuracies.append(accuracy)
+        success_rates.append(success_rate)
+    
+    # Create dual-axis plot
+    fig, ax1 = plt.subplots(figsize=(8, 5))
+    
+    color1 = 'steelblue'
+    ax1.set_xlabel('Epsilon (ε)', fontsize=11)
+    ax1.set_ylabel('Accuracy (%)', fontsize=11, color=color1)
+    line1 = ax1.plot(eps_list, accuracies, marker='o', linewidth=2, markersize=8, 
+                     color=color1, label='Model Accuracy')
+    ax1.tick_params(axis='y', labelcolor=color1)
+    ax1.grid(True, alpha=0.3, linestyle='--')
+    ax1.set_ylim([0, 100])
+    
+    ax2 = ax1.twinx()
+    color2 = 'orangered'
+    ax2.set_ylabel('Attack Success Rate (%)', fontsize=11, color=color2)
+    line2 = ax2.plot(eps_list, success_rates, marker='s', linewidth=2, markersize=8, 
+                     color=color2, linestyle='--', label='Attack Success Rate')
+    ax2.tick_params(axis='y', labelcolor=color2)
+    ax2.set_ylim([0, 100])
+    
+    # Combined legend
+    lines = line1 + line2
+    labels = [l.get_label() for l in lines]
+    ax1.legend(lines, labels, loc='center right', fontsize=10)
+    
+    plt.title('FGSM Attack Effectiveness vs Perturbation Strength', fontsize=12, fontweight='bold', pad=15)
     plt.tight_layout()
     plt.savefig(save_path, dpi=160)
     plt.close()
@@ -286,6 +456,8 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser.add_argument("--skip-curve", action="store_true", help="Skip accuracy vs epsilon curve")
     parser.add_argument("--skip-confusion", action="store_true", help="Skip confusion matrices")
     parser.add_argument("--skip-heatmap", action="store_true", help="Skip perturbation heatmap")
+    parser.add_argument("--skip-per-class", action="store_true", help="Skip per-class robustness bar chart")
+    parser.add_argument("--skip-success-rate", action="store_true", help="Skip attack success rate plot")
     parser.add_argument("--output-dir", default="figures", help="Directory to store generated figures")
     return parser.parse_args(argv)
 
@@ -328,19 +500,29 @@ def main(argv: List[str]) -> int:
             path = os.path.join(out_dir, f"fgsm_perturbation_heatmap_eps{args.fgsm_eps}.png")
             perturbation_heatmap(model, device, args.fgsm_eps, path)
             print(f"[OK] Perturbation heatmap: {path}")
+        if not args.skip_per_class:
+            path = os.path.join(out_dir, f"per_class_robustness_eps{args.fgsm_eps}.png")
+            per_class_robustness(model, device, args.fgsm_eps, path)
+            print(f"[OK] Per-class robustness: {path}")
+        if not args.skip_success_rate:
+            path = os.path.join(out_dir, "attack_success_vs_epsilon.png")
+            attack_success_rate_by_epsilon(model, device, args.eps_list, path)
+            print(f"[OK] Attack success rate: {path}")
     except Exception as e:  # noqa: BLE001
         print("ERROR during figure generation:", e)
         return 2
 
-        print("Figure generation complete.")
-        summary = f"""
-        Add these figures to your report:
-            - fgsm_examples_eps{args.fgsm_eps}.png (Clean vs Adv samples)
-            - fgsm_accuracy_vs_epsilon.png (Accuracy curve)
-            - confusion_clean.png / confusion_fgsm_eps{args.fgsm_eps}.png (Confusion matrices)
-            - fgsm_perturbation_heatmap_eps{args.fgsm_eps}.png (Perturbation heatmap)
-        """
-        print(textwrap.dedent(summary).strip())
+    print("Figure generation complete.")
+    summary = f"""
+    Add these figures to your report:
+        - fgsm_examples_eps{args.fgsm_eps}.png (Clean vs Adv samples)
+        - fgsm_accuracy_vs_epsilon.png (Accuracy curve)
+        - confusion_clean.png / confusion_fgsm_eps{args.fgsm_eps}.png (Confusion matrices)
+        - fgsm_perturbation_heatmap_eps{args.fgsm_eps}.png (Perturbation heatmap)
+        - per_class_robustness_eps{args.fgsm_eps}.png (Per-class vulnerability)
+        - attack_success_vs_epsilon.png (Success rate vs epsilon)
+    """
+    print(textwrap.dedent(summary).strip())
     return 0
 
 

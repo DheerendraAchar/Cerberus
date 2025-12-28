@@ -19,8 +19,8 @@ RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cpu 
 # Install other dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install additional deps for figure generation
-RUN pip install --no-cache-dir numpy scikit-learn
+# Install additional deps for figure generation (use NumPy 1.x for torchvision compatibility)
+RUN pip install --no-cache-dir "numpy<2" scikit-learn
 
 # Copy application code
 COPY cerberus/ cerberus/

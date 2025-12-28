@@ -1,0 +1,100 @@
+# Training Configuration for Cerberus
+# This file defines hyperparameters for both baseline and adversarial training
+
+# Training Type: 'baseline' or 'adversarial'
+training_type: adversarial
+
+# General Training Parameters
+training:
+  num_epochs: 100          # Number of training epochs
+  learning_rate: 0.01      # Initial learning rate
+  momentum: 0.9            # SGD momentum
+  weight_decay: 0.0005     # L2 regularization weight
+  
+  # Save and output paths
+  save_best: true          # Save model with best test accuracy
+  model_save_dir: outputs/models/
+  checkpoint_interval: 10  # Save checkpoint every N epochs
+  
+# Adversarial Training Specific Parameters
+adversarial:
+  epsilon: 0.03            # Perturbation strength for FGSM (0.03 ≈ 8/255)
+  alpha: 0.5               # Mix ratio: 0.5 means 50% clean, 50% adversarial
+  use_fgsm: true           # Use FGSM for generating adversarial examples
+  
+# Dataset Configuration
+dataset:
+  name: CIFAR10
+  data_dir: data/
+  batch_size: 128
+  num_workers: 2
+  shuffle_train: true
+  normalize: true
+  
+  # Data augmentation (optional)
+  augmentation:
+    random_crop: true
+    crop_size: 32
+    padding: 4
+    random_horizontal_flip: true
+    flip_prob: 0.5
+
+# Model Configuration
+model:
+  architecture: resnet18   # Model architecture to use
+  pretrained: false        # Train from scratch
+  num_classes: 10          # Number of output classes for CIFAR-10
+
+# Device Configuration
+device:
+  use_gpu: false           # Set to true if GPU available
+  gpu_id: 0                # GPU device ID if multiple GPUs
+
+# Logging and Visualization
+logging:
+  print_freq: 50           # Print progress every N batches
+  save_plots: true         # Save training curves
+  plot_dir: figures/training/
+  tensorboard: false       # Use TensorBoard logging (optional)
+
+# Evaluation Configuration
+evaluation:
+  eval_on_adversarial: true   # Evaluate on adversarial examples during training
+  eval_subset_size: 1000      # Use subset for faster adversarial evaluation
+  generate_report: true       # Generate evaluation report after training
+
+---
+# Alternative Configuration: Baseline Training Only
+# Uncomment and modify training_type to 'baseline' to use this configuration
+
+# training_type: baseline
+
+# training:
+#   num_epochs: 100
+#   learning_rate: 0.01
+#   momentum: 0.9
+#   weight_decay: 0.0005
+#   save_best: true
+#   model_save_dir: outputs/models/baseline/
+
+# dataset:
+#   name: CIFAR10
+#   data_dir: data/
+#   batch_size: 128
+#   num_workers: 2
+#   shuffle_train: true
+#   normalize: true
+
+# model:
+#   architecture: resnet18
+#   pretrained: false
+#   num_classes: 10
+
+# device:
+#   use_gpu: false
+#   gpu_id: 0
+
+# logging:
+#   print_freq: 50
+#   save_plots: true
+#   plot_dir: figures/training/baseline/
