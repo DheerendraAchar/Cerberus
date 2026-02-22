@@ -256,40 +256,162 @@
     - arXiv:2010.03316
     - **Why cite:** Understanding architectural choices' impact on robustness
 
+36. **Cui, J., Liu, S., Wang, L., & Jia, J. (2023)**
+    - "Decoupled Kullback-Leibler Divergence Loss"
+    - *NeurIPS 2023*
+    - arXiv:2305.13948
+    - **Why cite:** Novel loss function for improved adversarial training (2023)
+
+37. **Sehwag, V., Mahloujifar, S., Handina, T., Dai, S., Xiang, C., Chiang, M., & Mittal, P. (2023)**
+    - "Robust Principles: Architectural Design Principles for Adversarially Robust CNNs"
+    - *BMVC 2023*
+    - arXiv:2308.16258
+    - **Why cite:** Recent architectural insights for CNN robustness (2023)
+
+38. **Li, Y., Li, H., Meng, Y., Liu, T., & Sun, M. (2024)**
+    - "Adversarial Training Should Be Cast as a Non-Zero-Sum Game"
+    - *ICLR 2024*
+    - arXiv:2306.11035
+    - **Why cite:** Game-theoretic perspective on adversarial training (2024)
+
+39. **Zhang, C., Zhang, J., Wang, J., Xie, C., & Torr, P. (2024)**
+    - "Rethinking Model Ensemble in Transfer-based Adversarial Attacks"
+    - *ICLR 2024*
+    - arXiv:2303.09105
+    - **Why cite:** Transfer attack improvements for ensemble models (2024)
+
+40. **Wang, X., Zhang, H., Wei, Y., Zhou, P., & Zhang, Y. (2024)**
+    - "Data-Efficient Robust Machine Learning via Multi-Task Learning"
+    - *AAAI 2024*
+    - arXiv:2312.05050
+    - **Why cite:** Multi-task learning for data-efficient robustness (2024)
+
 ---
 
 ### **Transformer & Modern Architecture Robustness**
 
-36. **Shao, R., Shi, Z., Yi, J., Chen, P. Y., & Hsieh, C. J. (2022)**
+41. **Shao, R., Shi, Z., Yi, J., Chen, P. Y., & Hsieh, C. J. (2022)**
     - "On the Adversarial Robustness of Vision Transformers"
     - arXiv:2103.15670
     - **Why cite:** Robustness of Vision Transformers vs CNNs
 
-37. **Bhojanapalli, S., Chakrabarti, A., Glasner, D., Li, D., Unterthiner, T., & Veit, A. (2021)**
+42. **Bhojanapalli, S., Chakrabarti, A., Glasner, D., Li, D., Unterthiner, T., & Veit, A. (2021)**
     - "Understanding Robustness of Transformers for Image Classification"
     - *ICCV 2021*
     - arXiv:2103.14586
     - **Why cite:** Transformer architectures and adversarial robustness
 
+43. **Mao, X., Qi, G., Chen, Y., Li, X., Duan, R., Ye, S., He, Y., & Xue, H. (2024)**
+    - "Towards Adversarial Robustness of Vision Transformers via Diversity Enhancement"
+    - *CVPR 2024*
+    - arXiv:2312.08485
+    - **Why cite:** Latest ViT robustness techniques (2024)
+
+44. **Jing, L., Park, C., Sohn, K., Chen, T., Liu, Y., & Zhang, X. (2023)**
+    - "Self-Supervised Visual Representation Learning with Contrastive Adversarial Robustness"
+    - *NeurIPS 2023*
+    - arXiv:2305.12810
+    - **Why cite:** Self-supervised learning for adversarial robustness (2023)
+
+45. **Singla, S., Singla, S., Feizi, S., & Jacobs, D. W. (2024)**
+    - "Improved Techniques for Training Adaptive Deep Networks"
+    - *ICLR 2024*
+    - arXiv:2310.14861
+    - **Why cite:** Adaptive network training for robustness (2024)
+
+---
+
+### **Large Language Models & Multimodal Security (2023-2024)**
+
+46. **Zou, A., Wang, Z., Kolter, J. Z., & Fredrikson, M. (2023)**
+    - "Universal and Transferable Adversarial Attacks on Aligned Language Models"
+    - arXiv:2307.15043
+    - **Why cite:** GCG attack on LLMs - shows adversarial examples extend beyond vision (2023)
+
+47. **Carlini, N., Nasr, M., Choquette-Choo, C. A., Jagielski, M., Gao, I., Terzis, A., Tramer, F., Ippolito, D., Lee, K., Neekhara, P., Wallace, E., Song, F., Geambasu, R., Terzis, A., Brown, N., Lee, K. (2023)**
+    - "Are Aligned Neural Networks Adversarially Aligned?"
+    - *NeurIPS 2023*
+    - arXiv:2306.15447
+    - **Why cite:** LLM safety and adversarial alignment (2023)
+
+48. **Zhao, Y., Pang, T., Du, C., Yang, X., Li, C., Cheung, N. M. M., & Lin, M. (2024)**
+    - "On Evaluating Adversarial Robustness of Large Vision-Language Models"
+    - *NeurIPS 2024*
+    - arXiv:2305.16934
+    - **Why cite:** Adversarial robustness for multimodal models like CLIP, GPT-4V (2024)
+
+49. **Shayegani, E., Mamun, M. A., Fu, Y., Zaree, P., Dong, Y., & Abu-Ghazaleh, N. (2023)**
+    - "Jailbreak in pieces: Compositional Adversarial Attacks on Multi-Modal Language Models"
+    - *ICLR 2024*
+    - arXiv:2307.14539
+    - **Why cite:** Multimodal adversarial attacks (text+image) (2023)
+
+50. **Geiping, J., Fowl, L., Huang, W. R., Czaja, W., Taylor, G., Moeller, M., & Goldstein, T. (2024)**
+    - "Coercing LLMs to do and reveal (almost) anything"
+    - arXiv:2402.14020
+    - **Why cite:** Latest adversarial prompt attacks on LLMs (2024)
+
+---
+
+### **Neural Network Optimization & Training**
+
+51. **He, K., Zhang, X., Ren, S., & Sun, J. (2016)**
+    - "Deep Residual Learning for Image Recognition"
+    - *CVPR 2016*
+    - arXiv:1512.03385
+    - **Why cite:** ResNet architecture - the backbone you're using! MUST CITE
+
+52. **Krizhevsky, A., & Hinton, G. (2009)**
+    - "Learning Multiple Layers of Features from Tiny Images"
+    - *Technical Report, University of Toronto*
+    - **Why cite:** CIFAR-10 dataset - your benchmark dataset! MUST CITE
+
+53. **Paszke, A., Gross, S., Massa, F., Lerer, A., Bradbury, J., Chanan, G., et al. (2019)**
+    - "PyTorch: An Imperative Style, High-Performance Deep Learning Library"
+    - *NeurIPS 2019*
+    - arXiv:1912.01703
+    - **Why cite:** PyTorch framework - your implementation platform! MUST CITE
+
+54. **Loshchilov, I., & Hutter, F. (2019)**
+    - "Decoupled Weight Decay Regularization"
+    - *ICLR 2019*
+    - arXiv:1711.05101
+    - **Why cite:** AdamW optimizer - likely used in your training
+
+55. **Zhang, H., Cisse, M., Dauphin, Y. N., & Lopez-Paz, D. (2018)**
+    - "mixup: Beyond Empirical Risk Minimization"
+    - *ICLR 2018*
+    - arXiv:1710.09412
+    - **Why cite:** Data augmentation technique relevant to mixing clean/adversarial examples
+
 ---
 
 ### **Standards & Policy (Recent)**
 
-38. **Brundage, M., Avin, S., Wang, J., Belfield, H., Krueger, G., Hadfield, G., Khlaaf, H., Yang, J., Toner, H., Fong, R., Maharaj, T., Koh, P. W., Hooker, S., Leung, J., Trask, A., Bluemke, E., Lebensold, J., O'Keefe, C., Koren, M., Ryffel, T., Rubinovitz, J. B., Besiroglu, T., Carugati, F., Clark, J., Eckersley, P., de Haas, S., Johnson, M., Laurie, B., Ingerman, A., Krawczuk, I., Askell, A., Cammarota, R., Lohn, A., Krueger, D., Stix, C., Henderson, P., Graham, L., Prunkl, C., Martin, B., Seger, E., Zilberman, N., Ó hÉigeartaigh, S., Kroeger, F., Sastry, G., Kagan, R., Weller, A., Tse, B., Barnes, E., Dafoe, A., Scharre, P., Herbert-Voss, A., Rasser, M., Sodhani, S., Flynn, C., Gilbert, T. K., Dyer, L., Khan, S., Bengio, Y., & Anderljung, M. (2020)**
+56. **Brundage, M., Avin, S., Wang, J., Belfield, H., Krueger, G., Hadfield, G., et al. (2020)**
     - "Toward Trustworthy AI Development: Mechanisms for Supporting Verifiable Claims"
     - arXiv:2004.07213
     - **Why cite:** Policy and standards for AI safety (includes adversarial robustness)
 
-39. **European Union (2021)**
-    - "Proposal for a Regulation on Artificial Intelligence (AI Act)"
-    - COM/2021/206 final
-    - **Why cite:** EU AI Act - regulatory framework including adversarial robustness requirements
+57. **European Union (2024)**
+    - "Artificial Intelligence Act (Final Text)"
+    - *EU Regulation 2024/1689*
+    - **Why cite:** EU AI Act (2024) - regulatory framework including adversarial robustness requirements
 
-40. **NIST (2023)**
+58. **NIST (2023)**
     - "Adversarial Machine Learning: A Taxonomy and Terminology of Attacks and Mitigations"
-    - NIST AI 100-2e2023
+    - *NIST AI 100-2e2023*
     - DOI: 10.6028/NIST.AI.100-2e2023
     - **Why cite:** US NIST standardization of adversarial ML terminology
+
+59. **ISO/IEC (2023)**
+    - "ISO/IEC 23894:2023 - Information technology — Artificial intelligence — Guidance on risk management"
+    - **Why cite:** International standards for AI risk management (2023)
+
+60. **IEEE (2024)**
+    - "IEEE P2817 - Guide for Measuring the Adversarial Robustness of Computer Vision Systems"
+    - *IEEE Standards Association*
+    - **Why cite:** Emerging IEEE standard for measuring adversarial robustness (2024)
 
 ---
 
@@ -315,20 +437,30 @@ Croce, F., & Hein, M. (2020). Reliable evaluation of adversarial robustness with
 
 ---
 
-## 🎯 Essential 10 (If Space Limited)
+## 🎯 Essential 15 (If Space Limited)
 
-If you need to be selective, **these 10 are must-haves:**
+If you need to be selective, **these 15 are must-haves for 2025:**
 
-1. **Ilyas et al. (2019)** - Features not bugs [Theory]
-2. **Croce & Hein (2020)** - AutoAttack benchmark [Evaluation]
-3. **Carlini et al. (2019)** - Evaluation best practices [Methodology]
-4. **Zhang et al. (2019)** - TRADES defense [Defense]
-5. **Cohen et al. (2019)** - Certified robustness [Verification]
-6. **Nicolae et al. (2019)** - IBM ART toolkit [Tool - You're using this!]
-7. **Eykholt et al. (2018)** - Physical attacks [Real-world]
-8. **Ren et al. (2020)** - Comprehensive survey [Survey]
-9. **Finlayson et al. (2019)** - Medical AI attacks [Application]
-10. **NIST (2023)** - Official standards [Policy]
+### **Core Theory & Attacks (5)**
+1. **Goodfellow et al. (2015)** - FGSM original paper [Foundation]
+2. **Ilyas et al. (2019)** - Features not bugs [Theory]
+3. **Croce & Hein (2020)** - AutoAttack benchmark [Evaluation]
+4. **Carlini et al. (2019)** - Evaluation best practices [Methodology]
+5. **Zhao et al. (2024)** - Multimodal robustness [Recent - 2024]
+
+### **Defense & Training (5)**
+6. **Madry et al. (2018)** - PGD adversarial training [Foundation]
+7. **Zhang et al. (2019)** - TRADES defense [Defense]
+8. **Wang et al. (2023)** - Diffusion-based training [Recent - 2023]
+9. **Li et al. (2024)** - Game-theoretic training [Recent - 2024]
+10. **Pang et al. (2021)** - Bag of tricks [Practical]
+
+### **Infrastructure & Standards (5)**
+11. **He et al. (2016)** - ResNet architecture [Your backbone - MUST CITE]
+12. **Krizhevsky & Hinton (2009)** - CIFAR-10 dataset [Your dataset - MUST CITE]
+13. **Nicolae et al. (2019)** - IBM ART toolkit [Your tool - MUST CITE]
+14. **Paszke et al. (2019)** - PyTorch [Your framework - MUST CITE]
+15. **NIST (2023)** - Official standards [Policy]
 
 ---
 

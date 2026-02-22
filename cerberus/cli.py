@@ -260,11 +260,71 @@ def run_from_config(config_path: str) -> None:
 
     # Optional attack
     attack_cfg = cfg.get("attack") or {}
-    if attack_cfg.get("name") == "fgsm":
+    attack_type = attack_cfg.get("name", "fgsm")
+    
+    if attack_type == "fgsm":
         try:
             from .attacks import run_fgsm_attack
-
             res = run_fgsm_attack(model, test_loader, eps=attack_cfg.get("eps", 0.03), device=device)
+            metrics.update(res)
+        except Exception as exc:
+            metrics["attack_error"] = str(exc)
+    
+    elif attack_type == "pgd":
+        try:
+            from .attacks.pgd_attack import PGDAttack
+            pgd = PGDAttack(
+                model=model,
+                eps=attack_cfg.get("epsilon", 0.03),
+                eps_step=attack_cfg.get("eps_step", 0.01),
+                max_iter=attack_cfg.get("max_iter", 20),
+                device=device
+            )
+            res = pgd.evaluate(test_loader)
+            metrics.update(res)
+        except Exception as exc:
+            metrics["attack_error"] = str(exc)
+    
+    elif attack_type == "cw":
+        try:
+            from .attacks.cw_attack import CWAttack
+            cw = CWAttack(
+                model=model,
+                c=attack_cfg.get("c", 1.0),
+                learning_rate=attack_cfg.get("learning_rate", 0.01),
+                max_iterations=attack_cfg.get("max_iterations", 100),
+                device=device
+            )
+            res = cw.evaluate(test_loader)
+            metrics.update(res)
+        except Exception as exc:
+            metrics["attack_error"] = str(exc)
+    
+    elif attack_type == "deepfool":
+        try:
+            from .attacks.deepfool_attack import DeepFoolAttack
+            deepfool = DeepFoolAttack(
+                model=model,
+                max_iterations=attack_cfg.get("max_iterations", 100),
+                overshoot=attack_cfg.get("overshoot", 0.02),
+                device=device
+            )
+            res = deepfool.evaluate(test_loader)
+            metrics.update(res)
+        except Exception as exc:
+            metrics["attack_error"] = str(exc)
+    
+    elif attack_type == "jsma":
+        try:
+            from .attacks.jsma_attack import JSMAAttack
+            jsma = JSMAAttack(
+                model=model,
+                theta=attack_cfg.get("theta", 1.0),
+                gamma=attack_cfg.get("gamma", 0.1),
+                max_pixels=attack_cfg.get("max_pixels", 100),
+                device=device
+            )
+            res = jsma.evaluate(test_loader)
             metrics.update(res)
         except Exception as exc:
             metrics["attack_error"] = str(exc)
