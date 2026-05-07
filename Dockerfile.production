@@ -25,7 +25,7 @@ RUN pip install --no-cache-dir -e .
 RUN mkdir -p /app/data /app/models /app/results
 
 # Set environment variables
-ENV PYTHONUNBUFFERED=1
+ENV PYTHONUNBUFFERED = 1
 ENV CERBERUS_DATA_DIR=/app/data
 ENV CERBERUS_MODEL_DIR=/app/models
 ENV CERBERUS_RESULT_DIR=/app/results

@@ -87,8 +87,11 @@ class DeepFoolAttack:
                         keepdim=True
                     ).clamp(min=1e-8)
                     
+                    # Reshape grad_norm to match grad dimensions for broadcasting
+                    grad_norm_expanded = grad_norm.reshape(batch_size, 1, 1, 1)
+                    
                     # Normalized gradient direction
-                    delta = grad / grad_norm
+                    delta = grad / grad_norm_expanded
                     
                     # Move towards boundary with overshoot
                     x_adv = x_adv + self.overshoot * delta

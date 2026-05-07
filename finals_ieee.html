@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CERBERUS — System Architecture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --surface: #ffffff;
+    --surface-2: #f0ede6;
+    --border: #d8d3c8;
+    --border-strong: #b8b0a0;
+    --text-primary: #1a1714;
+    --text-secondary: #5a5248;
+    --text-muted: #8a8278;
+    --accent: #c8440c;
+    --accent-soft: #f5e6df;
+    --accent-2: #2a5fa5;
+    --accent-2-soft: #dde8f5;
+    --accent-3: #2d7a4f;
+    --accent-3-soft: #ddf0e8;
+    --yellow: #d4a017;
+    --yellow-soft: #faf3dc;
+    --mono: 'DM Mono', monospace;
+    --serif: 'Fraunces', serif;
+    --code: 'Space Mono', monospace;
+  }
+ 
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+ 
+  html { scroll-behavior: smooth; }
+ 
+  body {
+    font-family: var(--mono);
+    background: var(--bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+ 
+  /* ─── HEADER ─────────────────────────────────── */
+  header {
+    background: var(--text-primary);
+    color: var(--bg);
+    padding: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 3px solid var(--accent);
+  }
+ 
+  .header-inner {
+    max-width: 740px;
+    margin: 0 auto;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+ 
+  .logo {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+ 
+  .logo-name {
+    font-family: var(--serif);
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #fff;
+  }
+ 
+  .logo-tag {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: 1px solid var(--accent);
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+ 
+  nav {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+ 
+  nav a {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.6);
+    text-decoration: none;
+    padding: 4px 10px;
+    border-radius: 2px;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+ 
+  nav a:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+  }
+ 
+  /* ─── HERO ───────────────────────────────────── */
+  .hero {
+    background: var(--text-primary);
+    color: white;
+    padding: 40px 24px 30px;
+    border-bottom: 1px solid #333;
+  }
+ 
+  .hero-inner {
+    max-width: 740px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: center;
+  }
+ 
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 14px;
+  }
+ 
+  .hero-title em {
+    font-style: italic;
+    color: var(--accent);
+  }
+ 
+  .hero-desc {
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.55);
+    max-width: 440px;
+    line-height: 1.7;
+  }
+ 
+  .hero-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+ 
+  .stat {
+    background: rgba(255,255,255,0.04);
+    padding: 24px 28px;
+  }
+ 
+  .stat-num {
+    font-family: var(--serif);
+    font-size: 2.6rem;
+    font-weight: 300;
+    color: var(--accent);
+    display: block;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+ 
+  .stat-label {
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+ 
+  /* ─── TOC ────────────────────────────────────── */
+  .toc-section {
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 24px;
+  }
+ 
+  .toc-inner {
+    max-width: 740px;
+    margin: 0 auto;
+  }
+ 
+  .toc-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+ 
+  .toc-grid {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+ 
+  .toc-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    transition: all 0.18s;
+    white-space: nowrap;
+  }
+ 
+  .toc-item:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-soft);
+  }
+ 
+  .toc-num {
+    font-family: var(--serif);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    min-width: 16px;
+  }
+ 
+  /* ─── MAIN CONTENT ───────────────────────────── */
+  main {
+    max-width: 740px;
+    margin: 0 auto;
+    padding: 36px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+  }
+ 
+  /* ─── FIGURE CARDS ───────────────────────────── */
+  .figure-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    animation: fadeUp 0.5s ease both;
+  }
+ 
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+ 
+  .figure-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--surface);
+  }
+ 
+  .figure-num {
+    font-family: var(--serif);
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--border-strong);
+    line-height: 1;
+    min-width: 40px;
+    letter-spacing: -0.04em;
+  }
+ 
+  .figure-meta {}
+ 
+  .figure-title {
+    font-family: var(--serif);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+ 
+  .figure-subtitle {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    letter-spacing: 0.03em;
+  }
+ 
+  .figure-badge {
+    margin-left: auto;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+    white-space: nowrap;
+    align-self: flex-start;
+  }
+ 
+  .badge-arch   { background: var(--accent-soft);   color: var(--accent);   border: 1px solid #e8bfb0; }
+  .badge-flow   { background: var(--accent-2-soft); color: var(--accent-2); border: 1px solid #b0c8e8; }
+  .badge-train  { background: var(--accent-3-soft); color: var(--accent-3); border: 1px solid #a0d4b8; }
+  .badge-data   { background: var(--yellow-soft);   color: var(--yellow);   border: 1px solid #e0c870; }
+  .badge-perf   { background: #f0e8f5;              color: #7a3fa5;         border: 1px solid #c8a8e0; }
+ 
+  .figure-body {
+    padding: 20px;
+    background: var(--bg);
+  }
+ 
+  /* ─── DIAGRAM CONTAINERS ─────────────────────── */
+  .diagram-scroll {
+    overflow-x: auto;
+    border-radius: 2px;
+  }
+ 
+  pre.diagram {
+    font-family: var(--code);
+    font-size: 0.7rem;
+    line-height: 1.55;
+    color: var(--text-primary);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 28px 32px;
+    border-radius: 2px;
+    white-space: pre;
+    min-width: max-content;
+  }
+ 
+  /* Syntax coloring for diagrams */
+  .layer-frontend { color: var(--accent-2); }
+  .layer-backend  { color: var(--accent); }
+  .layer-ml       { color: var(--accent-3); }
+  .layer-data     { color: var(--yellow); }
+ 
+  /* ─── STYLED LAYERED ARCHITECTURE ───────────────*/
+  .arch-layer {
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 2px;
+  }
+ 
+  .arch-layer:last-child { margin-bottom: 0; }
+ 
+  .arch-layer-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    cursor: pointer;
+    user-select: none;
+  }
+ 
+  .arch-layer-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+ 
+  .arch-layer-body {
+    border-top: 1px solid var(--border);
+    padding: 0;
+  }
+ 
+  .arch-layer-body pre {
+    font-family: var(--code);
+    font-size: 0.68rem;
+    line-height: 1.6;
+    padding: 20px 24px;
+    white-space: pre;
+    overflow-x: auto;
+  }
+ 
+  /* Layer color themes */
+  .layer-f { background: var(--accent-2-soft); }
+  .layer-f .arch-layer-header { background: var(--accent-2-soft); color: var(--accent-2); }
+  .layer-f .arch-layer-dot { background: var(--accent-2); }
+  .layer-f .arch-layer-body { background: #f8fbff; }
+ 
+  .layer-b { background: var(--accent-soft); }
+  .layer-b .arch-layer-header { background: var(--accent-soft); color: var(--accent); }
+  .layer-b .arch-layer-dot { background: var(--accent); }
+  .layer-b .arch-layer-body { background: #fff8f5; }
+ 
+  .layer-m { background: var(--accent-3-soft); }
+  .layer-m .arch-layer-header { background: var(--accent-3-soft); color: var(--accent-3); }
+  .layer-m .arch-layer-dot { background: var(--accent-3); }
+  .layer-m .arch-layer-body { background: #f5fff8; }
+ 
+  .layer-d { background: var(--yellow-soft); }
+  .layer-d .arch-layer-header { background: var(--yellow-soft); color: var(--yellow); }
+  .layer-d .arch-layer-dot { background: var(--yellow); }
+  .layer-d .arch-layer-body { background: #fffcf0; }
+ 
+  /* connector arrow between layers */
+  .layer-arrow {
+    text-align: center;
+    padding: 6px 0;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+ 
+  /* ─── METRICS TABLE ───────────────────────────── */
+  .metrics-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+    font-family: var(--mono);
+  }
+ 
+  .metrics-table th {
+    background: var(--text-primary);
+    color: var(--bg);
+    padding: 10px 16px;
+    text-align: left;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+ 
+  .metrics-table td {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    color: var(--text-secondary);
+  }
+ 
+  .metrics-table tr:last-child td { border-bottom: none; }
+  .metrics-table tr:nth-child(even) td { background: var(--bg); }
+ 
+  .metrics-table .col-name {
+    font-family: var(--code);
+    font-size: 0.72rem;
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+ 
+  .bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+ 
+  .bar-bg {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+ 
+  .bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--accent);
+    transition: width 1s ease;
+  }
+ 
+  .bar-val {
+    font-family: var(--code);
+    font-size: 0.7rem;
+    color: var(--text-primary);
+    min-width: 36px;
+    text-align: right;
+  }
+ 
+  /* ─── HEATMAP ─────────────────────────────────── */
+  .heatmap-wrap {
+    overflow-x: auto;
+  }
+ 
+  .heatmap-table {
+    border-collapse: collapse;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+  }
+ 
+  .heatmap-table th, .heatmap-table td {
+    padding: 12px 20px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+ 
+  .heatmap-table th {
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    font-size: 0.65rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+ 
+  .heatmap-table td { font-family: var(--code); }
+ 
+  .heatmap-table td.row-header {
+    font-family: var(--mono);
+    background: var(--surface-2);
+    color: var(--text-secondary);
+    font-size: 0.65rem;
+    text-align: left;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+ 
+  .h-60 { background: #f0ede6; color: #6a6258; }
+  .h-65 { background: #e8d8c8; color: #5a4a3a; }
+  .h-70 { background: #d4a875; color: #3a2a1a; }
+  .h-73 { background: #c08040; color: #fff; }
+  .h-dash { background: var(--surface-2); color: var(--text-muted); font-style: italic; }
+ 
+  /* ─── PERF BARS ───────────────────────────────── */
+  .perf-grid {
+    display: grid;
+    grid-template-columns: 80px 1fr auto auto;
+    gap: 0;
+    align-items: center;
+  }
+ 
+  .perf-row {
+    display: contents;
+  }
+ 
+  .perf-row > * {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+  }
+ 
+  .perf-row:last-child > * { border-bottom: none; }
+ 
+  .perf-name {
+    font-family: var(--code);
+    font-weight: 700;
+    color: var(--text-primary);
+    background: var(--surface-2);
+    border-right: 1px solid var(--border);
+    font-size: 0.68rem;
+  }
+ 
+  .perf-bar-cell {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+  }
+ 
+  .perf-bar-outer {
+    height: 20px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    position: relative;
+  }
+ 
+  .perf-bar-inner {
+    height: 100%;
+    border-radius: 2px;
+    position: relative;
+  }
+ 
+  .perf-time {
+    color: var(--text-secondary);
+    text-align: right;
+    font-family: var(--code);
+    font-size: 0.68rem;
+    white-space: nowrap;
+    border-left: 1px solid var(--border);
+  }
+ 
+  .perf-iter {
+    color: var(--text-muted);
+    text-align: right;
+    font-size: 0.65rem;
+    white-space: nowrap;
+    border-left: 1px solid var(--border);
+  }
+ 
+  .perf-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: var(--surface-2);
+    border-right: 1px solid var(--border);
+  }
+ 
+  /* ─── CERTIFICATION CIRCLES ──────────────────── */
+  .cert-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+ 
+  .cert-card {
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 24px;
+    text-align: center;
+    background: var(--surface);
+  }
+ 
+  .cert-model {
+    font-family: var(--code);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 14px;
+  }
+ 
+  .cert-circle-wrap {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 16px;
+  }
+ 
+  .cert-circle-wrap svg {
+    transform: rotate(-90deg);
+  }
+ 
+  .cert-circle-bg {
+    fill: none;
+    stroke: var(--border);
+    stroke-width: 6;
+  }
+ 
+  .cert-circle-fill {
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1.5s ease;
+  }
+ 
+  .cert-val {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+ 
+  .cert-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    text-align: left;
+  }
+ 
+  .cert-stat {
+    padding: 8px 10px;
+    background: var(--bg);
+    border-radius: 2px;
+  }
+ 
+  .cert-stat-label {
+    font-size: 0.6rem;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 2px;
+  }
+ 
+  .cert-stat-val {
+    font-family: var(--code);
+    font-size: 0.75rem;
+    color: var(--text-primary);
+  }
+ 
+  /* ─── TRAINING CURVES ────────────────────────── */
+  .training-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+  }
+ 
+  .training-card {
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    background: var(--surface);
+  }
+ 
+  .training-card-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+ 
+  .training-card-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+ 
+  .training-chart {
+    padding: 16px;
+    height: 120px;
+    position: relative;
+  }
+ 
+  .training-chart svg {
+    width: 100%;
+    height: 100%;
+  }
+ 
+  /* ─── TRADEOFF SCATTER ───────────────────────── */
+  .scatter-container {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 32px;
+  }
+ 
+  .scatter-svg {
+    width: 100%;
+    max-height: 360px;
+  }
+ 
+  /* ─── TRANSFER LEGEND ────────────────────────── */
+  .color-legend {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+ 
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.68rem;
+    color: var(--text-secondary);
+  }
+ 
+  .legend-swatch {
+    width: 16px;
+    height: 12px;
+    border-radius: 2px;
+  }
+ 
+  /* ─── FOOTER ─────────────────────────────────── */
+  footer {
+    background: var(--text-primary);
+    color: rgba(255,255,255,0.4);
+    padding: 20px 24px;
+    border-top: 3px solid var(--accent);
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+  }
+ 
+  .footer-inner {
+    max-width: 740px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+ 
+  .footer-brand {
+    font-family: var(--serif);
+    font-size: 1rem;
+    color: rgba(255,255,255,0.7);
+  }
+ 
+  /* ─── RESPONSIVE ─────────────────────────────── */
+  @media (max-width: 768px) {
+    .hero-inner { grid-template-columns: 1fr; gap: 40px; }
+    .header-inner { padding: 16px 20px; }
+    nav { display: none; }
+    main { padding: 32px 20px; gap: 40px; }
+    .hero { padding: 48px 20px 40px; }
+    .toc-section { padding: 24px 20px; }
+    .figure-header { padding: 16px 20px; }
+    .figure-body { padding: 20px; }
+    .figure-num { font-size: 2rem; min-width: 40px; }
+    .cert-grid { grid-template-columns: 1fr; }
+    .training-grid { grid-template-columns: 1fr; }
+  }
+ 
+  /* ─── UTILITY ────────────────────────────────── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+ 
+  @media (max-width: 860px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+ 
+  .info-box {
+    background: var(--accent-2-soft);
+    border: 1px solid #b0c8e8;
+    border-left: 3px solid var(--accent-2);
+    padding: 16px 20px;
+    border-radius: 2px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+ 
+  .tag-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+ 
+  .tag {
+    font-size: 0.62rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 2px;
+    background: var(--surface-2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+ 
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--text-muted);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin: -16px 0;
+  }
+ 
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+</style>
+</head>
+<body>
+ 
+<!-- ═══ HEADER ══════════════════════════════════════════════════ -->
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-name">CERBERUS</span>
+      <span class="logo-tag">System Architecture</span>
+    </div>
+    <nav>
+      <a href="#fig1">Architecture</a>
+      <a href="#fig2">Pipeline</a>
+      <a href="#fig3">Training</a>
+      <a href="#fig4">Data Flow</a>
+      <a href="#fig5">ASR</a>
+      <a href="#fig6">Trade-off</a>
+      <a href="#fig7">Curves</a>
+      <a href="#fig8">Transfer</a>
+      <a href="#fig9">Perf</a>
+      <a href="#fig10">Cert</a>
+    </nav>
+  </div>
+</header>
+ 
+<!-- ═══ HERO ════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <h1 class="hero-title">Adversarial<br><em>Robustness</em><br>Framework</h1>
+      <p class="hero-desc">CERBERUS is a comprehensive platform for evaluating and hardening ML models against adversarial attacks — covering 10 attack algorithms, 13 model architectures, and 2 datasets.</p>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">10</span>
+        <span class="stat-label">Attack Algorithms</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">13</span>
+        <span class="stat-label">Model Architectures</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">4</span>
+        <span class="stat-label">System Layers</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">2</span>
+        <span class="stat-label">Datasets</span>
+      </div>
+    </div>
+  </div>
+</section>
+ 
+<!-- ═══ TOC ══════════════════════════════════════════════════════ -->
+<div class="toc-section">
+  <div class="toc-inner">
+    <div class="toc-label">Figures in this document</div>
+    <div class="toc-grid">
+      <a href="#fig1" class="toc-item"><span class="toc-num">01</span> System Architecture</a>
+      <a href="#fig2" class="toc-item"><span class="toc-num">02</span> Attack Pipeline</a>
+      <a href="#fig3" class="toc-item"><span class="toc-num">03</span> Adversarial Training</a>
+      <a href="#fig4" class="toc-item"><span class="toc-num">04</span> Component Interaction</a>
+      <a href="#fig5" class="toc-item"><span class="toc-num">05</span> ASR vs Epsilon</a>
+      <a href="#fig6" class="toc-item"><span class="toc-num">06</span> Robustness Trade-off</a>
+      <a href="#fig7" class="toc-item"><span class="toc-num">07</span> Training Curves</a>
+      <a href="#fig8" class="toc-item"><span class="toc-num">08</span> Transferability</a>
+      <a href="#fig9" class="toc-item"><span class="toc-num">09</span> Response Times</a>
+      <a href="#fig10" class="toc-item"><span class="toc-num">10</span> Robustness Certification</a>
+    </div>
+  </div>
+</div>
+ 
+<!-- ═══ MAIN ══════════════════════════════════════════════════════ -->
+<main>
+ 
+  <!-- ─── FIGURE 1 ──────────────────────────────────────── -->
+  <article class="figure-card" id="fig1">
+    <div class="figure-header">
+      <div class="figure-num">01</div>
+      <div class="figure-meta">
+        <div class="figure-title">Complete System Architecture</div>
+        <div class="figure-subtitle">Shows all 4 layers and core components of the CERBERUS platform</div>
+      </div>
+      <span class="figure-badge badge-arch">Architecture</span>
+    </div>
+    <div class="figure-body">
+      <div style="display:flex; flex-direction:column; gap:2px;">
+ 
+        <!-- Frontend -->
+        <div class="arch-layer layer-f">
+          <div class="arch-layer-header">
+            <div class="arch-layer-dot"></div>
+            Frontend Layer — React 18.2
+          </div>
+          <div class="arch-layer-body">
+            <pre>  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+  │   Header     │  │   Dashboard  │  │  AttackPanel │
+  │(Theme Toggle)│  │ (Model Stats)│  │  (Controls)  │
+  └──────────────┘  └──────────────┘  └──────────────┘
+  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+  │ResultsViewer │  │Visualization │  │ExperimentLog │
+  │  (Metrics)   │  │  (Charts)    │  │  (Database)  │
+  └──────────────┘  └──────────────┘  └──────────────┘</pre>
+          </div>
+        </div>
+ 
+        <div class="layer-arrow">↓ HTTP REST API (JSON) ↓</div>
+ 
+        <!-- Backend -->
+        <div class="arch-layer layer-b">
+          <div class="arch-layer-header">
+            <div class="arch-layer-dot"></div>
+            Backend Layer — Flask 2.3
+          </div>
+          <div class="arch-layer-body">
+            <pre>  REST Endpoints:
+  ┌─────────────┐  ┌─────────────┐  ┌──────────────────┐
+  │run-attack   │  │retrain      │  │experiments       │
+  │ (POST)      │  │ (POST)      │  │ (GET)            │
+  └─────────────┘  └─────────────┘  └──────────────────┘
+ 
+  Core Processing Engine:
+  ├─ Model Loading & Caching       ├─ Data Preprocessing
+  ├─ Attack Instantiation          ├─ Metrics Computation
+  └─ Database I/O</pre>
+          </div>
+        </div>
+ 
+        <div class="layer-arrow">↓ PyTorch Computation ↓</div>
+ 
+        <!-- ML -->
+        <div class="arch-layer layer-m">
+          <div class="arch-layer-header">
+            <div class="arch-layer-dot"></div>
+            ML Pipeline Layer — PyTorch 2.0
+          </div>
+          <div class="arch-layer-body">
+            <pre>  Attack Algorithms (10 total):
+  Core (5):     FGSM · PGD · C&W · DeepFool · JSMA
+  Advanced (5): AutoAttack · Square · FAB · RaySAttack · TRADES
+ 
+  Model Architectures (13 total):
+  Vision / CIFAR-10 (9):           NLP / AG News (4):
+  ├─ ResNet-18 (11.2M)             ├─ TextCNN (24M)
+  ├─ ResNet-50 (25.6M)             ├─ LSTM (15M)
+  ├─ VGG-16 (138M)                 ├─ BiLSTM (18M)
+  ├─ DenseNet-121 (7.0M)           └─ Transformer (50M)
+  ├─ MobileNetV2 (3.5M)
+  ├─ EfficientNet-B0 (5.3M)
+  ├─ Inception-V3 (27M)
+  ├─ ShuffleNet-V2 (2.3M)
+  └─ Vision Transformer (86M)</pre>
+          </div>
+        </div>
+ 
+        <div class="layer-arrow">↓ Data I/O ↓</div>
+ 
+        <!-- Data -->
+        <div class="arch-layer layer-d">
+          <div class="arch-layer-header">
+            <div class="arch-layer-dot"></div>
+            Data Layer — SQLite + Datasets
+          </div>
+          <div class="arch-layer-body">
+            <pre>  Database (cerberus.db):           Datasets:
+  experiments table                 CIFAR-10: 50K train, 10K test, 10 classes
+  ├─ id (PK)                        AG News:  110K train, 10K test, 4 classes
+  ├─ attack_type / architecture
+  ├─ epsilon / clean_acc / adv_acc
+  └─ timestamp</pre>
+          </div>
+        </div>
+ 
+      </div>
+    </div>
+  </article>
+ 
+  <!-- ─── FIGURE 2 ──────────────────────────────────────── -->
+  <article class="figure-card" id="fig2">
+    <div class="figure-header">
+      <div class="figure-num">02</div>
+      <div class="figure-meta">
+        <div class="figure-title">Attack Execution Pipeline</div>
+        <div class="figure-subtitle">Step-by-step workflow from user request to result delivery</div>
+      </div>
+      <span class="figure-badge badge-flow">Flow</span>
+    </div>
+    <div class="figure-body">
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 2px;">
+ 
+        <!-- Steps 1-5 -->
+        <div style="display:flex; flex-direction:column; gap:2px;">
+          <div style="background:var(--surface); border:1px solid var(--border); padding:16px 20px; border-radius:2px;">
+            <div style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;">Input</div>
+            <div style="font-family:var(--code);font-size:0.7rem;color:var(--text-primary);">{attack, architecture, epsilon, num_samples, dataset}</div>
+          </div>
+          <div style="text-align:center;color:var(--text-muted);font-size:0.75rem;padding:4px;">↓</div>
+ 
+          <div style="background:var(--surface); border:1px solid var(--border); padding:16px 20px; border-radius:2px;">
+            <div style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-2);margin-bottom:8px; font-weight:500;">① Load Model</div>
+            <pre style="font-family:var(--code);font-size:0.65rem;color:var(--text-secondary);">Cache hit  → use cached model
+Cache miss → load from disk
+Move to device (CPU/CUDA)
+Set eval mode</pre>
+          </div>
+          <div style="text-align:center;color:var(--text-muted);font-size:0.75rem;padding:4px;">↓</div>
+ 
+          <div style="background:var(--surface); border:1px solid var(--border); padding:16px 20px; border-radius:2px;">
+            <div style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-2);margin-bottom:8px; font-weight:500;">② Load Data</div>
+            <pre style="font-family:var(--code);font-size:0.65rem;color:var(--text-secondary);">CIFAR-10 → load_cifar10_loaders()
+AG News  → load_ag_news_loaders()
+Normalize / tokenize → device</pre>
+          </div>
+          <div style="text-align:center;color:var(--text-muted);font-size:0.75rem;padding:4px;">↓</div>
+ 
+          <div style="background:var(--surface); border:1px solid var(--border); padding:16px 20px; border-radius:2px;">
+            <div style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-2);margin-bottom:8px; font-weight:500;">③ Clean Predictions</div>
+            <pre style="font-family:var(--code);font-size:0.65rem;color:var(--text-secondary);">logits = model(clean_input)
+pred   = argmax(logits)
+A_c    = sum(pred == labels) / N</pre>
+          </div>
+          <div style="text-align:center;color:var(--text-muted);font-size:0.75rem;padding:4px;">↓</div>
+ 
+          <div style="background:var(--surface); border:1px solid var(--border); padding:16px 20px; border-radius:2px;">
+            <div style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-2);margin-bottom:8px; font-weight:500;">④ Instantiate Attack</div>
+            <pre style="font-family:var(--code);font-size:0.65rem;color:var(--text-secondary);">fgsm    → FSGMAttack(model, eps)
+pgd     → PGDAttack(model, 100 iter)
+cw      → CWAttack(model, 200 iter)
+deepfool→ DeepFoolAttack(50 iter)
+jsma    → JSMAAttack(theta=1.0)</pre>
+          </div>
+        </div>
+ 
+        <!-- Steps 5-10 -->
+        <div style="display:flex; flex-direction:column; gap:2px;">
+          <div style="background:var(--surface); border:1px solid var(--border); padding:16px 20px; border-radius:2px;">
+            <div style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-2);margin-bottom:8px; font-weight:500;">⑤ Generate Adversarials</div>
+            <pre style="font-family:var(--code);font-size:0.65rem;color:var(--text-secondary);">FGSM:     δ = ε·sign(∇_x L)  [1 step]
+PGD:      100 iter, project ε-ball
+C&W:      200 iter optimization
+DeepFool: minimal boundary δ
+JSMA:     saliency map pixels</pre>
+          </div>
+          <div style="text-align:center;color:var(--text-muted);font-size:0.75rem;padding:4px;">↓</div>
+ 
+          <div style="background:var(--surface); border:1px solid var(--border); padding:16px 20px; border-radius:2px;">
+            <div style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-2);margin-bottom:8px; font-weight:500;">⑥ Clamp to Valid Range</div>
+            <pre style="font-family:var(--code);font-size:0.65rem;color:var(--text-secondary);">Vision: clamp(x_adv, 0, 1)
+Text:   clamp(x_adv, 0, vocab_size)</pre>
+          </div>
+          <div style="text-align:center;color:var(--text-muted);font-size:0.75rem;padding:4px;">↓</div>
+ 
+          <div style="background:var(--surface); border:1px solid var(--border); padding:16px 20px; border-radius:2px;">
+            <div style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-2);margin-bottom:8px; font-weight:500;">⑦ Adversarial Predictions</div>
+            <pre style="font-family:var(--code);font-size:0.65rem;color:var(--text-secondary);">logits_adv = model(x_adv)
+pred_adv   = argmax(logits_adv)
+A_a        = sum(pred_adv == y) / N</pre>
+          </div>
+          <div style="text-align:center;color:var(--text-muted);font-size:0.75rem;padding:4px;">↓</div>
+ 
+          <div style="background:var(--surface); border:1px solid var(--border); padding:16px 20px; border-radius:2px;">
+            <div style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-2);margin-bottom:8px; font-weight:500;">⑧ Compute Metrics</div>
+            <pre style="font-family:var(--code);font-size:0.65rem;color:var(--text-secondary);">ASR      = 1 - A_a
+Δ Acc    = A_c - A_a
+‖δ‖      = norm(x_adv - x)
+L∞ dist  = max(|x_adv - x|)</pre>
+          </div>
+          <div style="text-align:center;color:var(--text-muted);font-size:0.75rem;padding:4px;">↓</div>
+ 
+          <div style="background:var(--surface); border:1px solid var(--border); padding:16px 20px; border-radius:2px;">
+            <div style="font-size:0.6rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-2);margin-bottom:8px; font-weight:500;">⑨ Return JSON Result</div>
+            <pre style="font-family:var(--code);font-size:0.65rem;color:var(--text-secondary);">clean_accuracy:     92.3
+adversarial_accuracy: 68.5
+attack_success_rate:  74.2
+execution_time_ms:   245
+visualization: [base64]</pre>
+          </div>
+        </div>
+ 
+      </div>
+    </div>
+  </article>
+ 
+  <!-- ─── FIGURE 3 ──────────────────────────────────────── -->
+  <article class="figure-card" id="fig3">
+    <div class="figure-header">
+      <div class="figure-num">03</div>
+      <div class="figure-meta">
+        <div class="figure-title">Adversarial Training Defense Pipeline</div>
+        <div class="figure-subtitle">Step-by-step model hardening mechanism with FGSM-based adversarial training</div>
+      </div>
+      <span class="figure-badge badge-train">Training</span>
+    </div>
+    <div class="figure-body">
+      <div class="info-box" style="margin-bottom:20px;">
+        <strong>Input:</strong> Baseline model θ₀, training dataset D, perturbation budget ε, mix ratio α, epochs E<br>
+        <strong>Output:</strong> Hardened model θ* with +10–15% robust accuracy, −2–5% clean accuracy trade-off
+      </div>
+ 
+      <div style="display:grid; grid-template-columns:repeat(7, 1fr); gap:8px; margin-bottom:24px;">
+        <div style="grid-column:span 7; background:var(--surface-2); border:1px solid var(--border); padding:12px 16px; border-radius:2px; font-size:0.7rem; color:var(--text-secondary);">
+          <strong style="color:var(--text-primary);">Phase 1 — Setup:</strong> Initialize θ ← θ₀ · Create Adam optimizer (lr=0.001) · Load training data in batches · Set device
+        </div>
+      </div>
+ 
+      <div style="position:relative; padding-left:32px; border-left:2px solid var(--border);">
+        <div style="font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted); margin-bottom:12px; margin-left:-32px; padding-left:20px;">For each epoch, for each batch:</div>
+ 
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; gap:12px; align-items:flex-start;">
+            <div style="min-width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:0.62rem;display:flex;align-items:center;justify-content:center;font-family:var(--code);margin-top:1px;flex-shrink:0;">1</div>
+            <div style="background:var(--surface);border:1px solid var(--border);padding:14px 18px;border-radius:2px;flex:1;">
+              <div style="font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;">Generate Adversarial Examples</div>
+              <code style="font-size:0.7rem;font-family:var(--code);color:var(--text-secondary);">x_adv = x_batch + ε · sign(∇L(θ, x_batch, y_batch))</code>
+            </div>
+          </div>
+ 
+          <div style="display:flex; gap:12px; align-items:flex-start;">
+            <div style="min-width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:0.62rem;display:flex;align-items:center;justify-content:center;font-family:var(--code);margin-top:1px;flex-shrink:0;">2</div>
+            <div style="background:var(--surface);border:1px solid var(--border);padding:14px 18px;border-radius:2px;flex:1;">
+              <div style="font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;">Mix Clean & Adversarial</div>
+              <code style="font-size:0.7rem;font-family:var(--code);color:var(--text-secondary);">x_mixed = α·x_batch + (1-α)·x_adv   where α ∈ [0,1]</code>
+            </div>
+          </div>
+ 
+          <div style="display:flex; gap:12px; align-items:flex-start;">
+            <div style="min-width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:0.62rem;display:flex;align-items:center;justify-content:center;font-family:var(--code);margin-top:1px;flex-shrink:0;">3</div>
+            <div style="background:var(--surface);border:1px solid var(--border);padding:14px 18px;border-radius:2px;flex:1;">
+              <div style="font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;">Forward + Loss + Backward</div>
+              <code style="font-size:0.7rem;font-family:var(--code);color:var(--text-secondary);">logits = θ(x_mixed) → L = CrossEntropy(logits, y) → ∇ = ∂L/∂θ</code>
+            </div>
+          </div>
+ 
+          <div style="display:flex; gap:12px; align-items:flex-start;">
+            <div style="min-width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font-size:0.62rem;display:flex;align-items:center;justify-content:center;font-family:var(--code);margin-top:1px;flex-shrink:0;">4</div>
+            <div style="background:var(--surface);border:1px solid var(--border);padding:14px 18px;border-radius:2px;flex:1;">
+              <div style="font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);margin-bottom:6px;">Optimizer Step</div>
+              <code style="font-size:0.7rem;font-family:var(--code);color:var(--text-secondary);">θ ← θ - η·∇   (gradient descent update)</code>
+            </div>
+          </div>
+        </div>
+ 
+        <div style="margin-top:20px;padding:14px 18px;background:var(--surface-2);border:1px solid var(--border);border-radius:2px;">
+          <div style="font-size:0.65rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px;">Epoch-end evaluation — Evaluate at ε' ∈ {0.01, 0.02, 0.03, 0.06, 0.1}</div>
+          <code style="font-size:0.68rem;font-family:var(--code);color:var(--text-secondary);">x_adv_test ← FGSM(θ, x_test, y_test, ε') → acc(ε') = accuracy(θ(x_adv_test), y_test)</code>
+        </div>
+      </div>
+    </div>
+  </article>
+ 
+  <!-- ─── FIGURE 4 ──────────────────────────────────────── -->
+  <article class="figure-card" id="fig4">
+    <div class="figure-header">
+      <div class="figure-num">04</div>
+      <div class="figure-meta">
+        <div class="figure-title">Component Interaction & Data Flow</div>
+        <div class="figure-subtitle">How frontend, backend, ML engine, and database communicate</div>
+      </div>
+      <span class="figure-badge badge-flow">Data Flow</span>
+    </div>
+    <div class="figure-body">
+      <div class="diagram-scroll">
+        <pre class="diagram">┌─────────────────────────────────────────────────────────┐
+│                  FRONTEND (React)                       │
+│                                                         │
+│  ┌────────────────────┐     ┌────────────────────┐     │
+│  │  AttackPanel.jsx   │     │  ResultsViewer.jsx │     │
+│  │  ├─ Attack type    │     │  ├─ MetricsCard    │     │
+│  │  ├─ Model arch     │     │  ├─ ChartComponent │     │
+│  │  └─ Epsilon input  │     │  └─ ExportButton   │     │
+│  └──────────┬─────────┘     └─────────┬──────────┘     │
+│             │                         │                │
+│             │ JSON POST               │ JSON GET       │
+│             │ {attack,arch,eps}       │ limit, offset  │
+└─────────────┼─────────────────────────┼────────────────┘
+              │ HTTP                    │ HTTP
+              ↓                         ↓
+┌────────────────────────────────────────────────────────┐
+│                 FLASK BACKEND (API)                    │
+│                                                        │
+│  POST /api/run-attack                                  │
+│  ├─ extract_params(data)                               │
+│  ├─ execute_attack(attack_params)   → ML Engine        │
+│  ├─ store_results(results)          → Database         │
+│  └─ return jsonify(results)         → Frontend         │
+│                                                        │
+│  GET /api/experiments                                  │
+│  ├─ query_experiments(limit, offset) → Database        │
+│  └─ return format_json(rows)         → Frontend        │
+└───────────────────┬────────────────────────────────────┘
+                    │ PyTorch Calls
+                    ↓
+┌────────────────────────────────────────────────────────┐
+│                   ML ENGINE (PyTorch)                  │
+│                                                        │
+│  load_model(arch)                                      │
+│  ├─ Cache hit  → return cached model                   │
+│  └─ Cache miss → load from disk                        │
+│                                                        │
+│  attack = create_attack(type, model, eps)              │
+│  x_adv  = attack.generate(images, labels)              │
+│  metrics = evaluate(model, x_clean, x_adv, labels)     │
+│  ├─ clean_acc = P(model(x_clean) == y)                 │
+│  ├─ adv_acc   = P(model(x_adv) == y)                   │
+│  └─ ASR       = 1 - adv_accuracy                       │
+└───────────────────┬────────────────────────────────────┘
+                    │ Data I/O
+                    ↓
+┌────────────────────────────────────────────────────────┐
+│              DATABASE & DATASETS                       │
+│                                                        │
+│  SQLite (cerberus.db)        Disk Storage              │
+│  ├─ id (PK)                  ├─ CIFAR-10/ (60K imgs)  │
+│  ├─ attack_type              ├─ AG_NEWS/ (120K arts)   │
+│  ├─ architecture             └─ models/ (*.pt files)   │
+│  ├─ epsilon                                            │
+│  ├─ clean_acc / adv_acc / asr                          │
+│  └─ timestamp                                          │
+└────────────────────────────────────────────────────────┘</pre>
+      </div>
+    </div>
+  </article>
+ 
+  <!-- ─── FIGURE 5 ──────────────────────────────────────── -->
+  <article class="figure-card" id="fig5">
+    <div class="figure-header">
+      <div class="figure-num">05</div>
+      <div class="figure-meta">
+        <div class="figure-title">Attack Success Rate vs Epsilon</div>
+        <div class="figure-subtitle">Comparing attack effectiveness across perturbation budgets — ResNet-18 on CIFAR-10</div>
+      </div>
+      <span class="figure-badge badge-data">Metrics</span>
+    </div>
+    <div class="figure-body">
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:2px; padding:28px 32px;">
+        <svg viewBox="0 0 680 340" xmlns="http://www.w3.org/2000/svg" class="scatter-svg" style="max-height:340px;">
+          <defs>
+            <marker id="arrowhead" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto">
+              <polygon points="0 0, 6 3, 0 6" fill="#b8b0a0"/>
+            </marker>
+          </defs>
+ 
+          <!-- Grid lines -->
+          <line x1="60" y1="20" x2="60" y2="290" stroke="#e0dbd4" stroke-width="1"/>
+          <line x1="60" y1="290" x2="640" y2="290" stroke="#e0dbd4" stroke-width="1"/>
+          
+          <!-- Y axis labels -->
+          <text x="50" y="30" text-anchor="end" font-family="DM Mono, monospace" font-size="9" fill="#8a8278">100%</text>
+          <text x="50" y="80" text-anchor="end" font-family="DM Mono, monospace" font-size="9" fill="#8a8278">90%</text>
+          <text x="50" y="130" text-anchor="end" font-family="DM Mono, monospace" font-size="9" fill="#8a8278">80%</text>
+          <text x="50" y="180" text-anchor="end" font-family="DM Mono, monospace" font-size="9" fill="#8a8278">70%</text>
+          <text x="50" y="230" text-anchor="end" font-family="DM Mono, monospace" font-size="9" fill="#8a8278">60%</text>
+          <text x="50" y="280" text-anchor="end" font-family="DM Mono, monospace" font-size="9" fill="#8a8278">50%</text>
+ 
+          <!-- Horizontal grid -->
+          <line x1="60" y1="30" x2="640" y2="30" stroke="#f0ede6" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="60" y1="80" x2="640" y2="80" stroke="#f0ede6" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="60" y1="130" x2="640" y2="130" stroke="#f0ede6" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="60" y1="180" x2="640" y2="180" stroke="#f0ede6" stroke-width="1" stroke-dasharray="4,4"/>
+          <line x1="60" y1="230" x2="640" y2="230" stroke="#f0ede6" stroke-width="1" stroke-dasharray="4,4"/>
+ 
+          <!-- X axis labels -->
+          <text x="60" y="308" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="#8a8278">0.00</text>
+          <text x="175" y="308" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="#8a8278">0.01</text>
+          <text x="275" y="308" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="#8a8278">0.02</text>
+          <text x="375" y="308" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="#8a8278">0.03</text>
+          <text x="475" y="308" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="#8a8278">0.06</text>
+          <text x="590" y="308" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="#8a8278">0.10</text>
+          <text x="350" y="330" text-anchor="middle" font-family="DM Mono, monospace" font-size="9" fill="#8a8278">Perturbation Budget (ε)</text>
+ 
+          <!-- C&W line — highest (91.7%) -->
+          <polyline points="60,230 175,130 275,85 375,55 475,30 590,28" fill="none" stroke="#c8440c" stroke-width="2.5" stroke-linejoin="round"/>
+          <circle cx="60" cy="230" r="4" fill="#c8440c"/><circle cx="175" cy="130" r="4" fill="#c8440c"/>
+          <circle cx="275" cy="85" r="4" fill="#c8440c"/><circle cx="375" cy="55" r="4" fill="#c8440c"/>
+          <circle cx="475" cy="30" r="4" fill="#c8440c"/><circle cx="590" cy="28" r="4" fill="#c8440c"/>
+          <text x="600" y="25" font-family="DM Mono,monospace" font-size="9" fill="#c8440c">C&W (91.7%)</text>
+ 
+          <!-- PGD line (89.3%) -->
+          <polyline points="60,238 175,148 275,110 375,80 475,58 590,45" fill="none" stroke="#2a5fa5" stroke-width="2.5" stroke-linejoin="round"/>
+          <circle cx="60" cy="238" r="4" fill="#2a5fa5"/><circle cx="175" cy="148" r="4" fill="#2a5fa5"/>
+          <circle cx="275" cy="110" r="4" fill="#2a5fa5"/><circle cx="375" cy="80" r="4" fill="#2a5fa5"/>
+          <circle cx="475" cy="58" r="4" fill="#2a5fa5"/><circle cx="590" cy="45" r="4" fill="#2a5fa5"/>
+          <text x="600" y="42" font-family="DM Mono,monospace" font-size="9" fill="#2a5fa5">PGD (89.3%)</text>
+ 
+          <!-- DeepFool (76.5%) -->
+          <polyline points="60,252 175,185 275,163 375,148 475,133 590,118" fill="none" stroke="#2d7a4f" stroke-width="2.5" stroke-linejoin="round"/>
+          <circle cx="60" cy="252" r="4" fill="#2d7a4f"/><circle cx="590" cy="118" r="4" fill="#2d7a4f"/>
+          <text x="600" y="115" font-family="DM Mono,monospace" font-size="9" fill="#2d7a4f">DeepFool (76.5%)</text>
+ 
+          <!-- FGSM (74.2%) -->
+          <polyline points="60,258 175,200 275,183 375,170 475,163 590,155" fill="none" stroke="#d4a017" stroke-width="2.5" stroke-linejoin="round"/>
+          <circle cx="60" cy="258" r="4" fill="#d4a017"/><circle cx="590" cy="155" r="4" fill="#d4a017"/>
+          <text x="600" y="152" font-family="DM Mono,monospace" font-size="9" fill="#d4a017">FGSM (74.2%)</text>
+ 
+          <!-- JSMA (68.9%) -->
+          <polyline points="60,270 175,228 275,215 375,205 475,198 590,188" fill="none" stroke="#7a3fa5" stroke-width="2.5" stroke-linejoin="round"/>
+          <circle cx="60" cy="270" r="4" fill="#7a3fa5"/><circle cx="590" cy="188" r="4" fill="#7a3fa5"/>
+          <text x="600" y="185" font-family="DM Mono,monospace" font-size="9" fill="#7a3fa5">JSMA (68.9%)</text>
+ 
+          <!-- Axes labels -->
+          <text x="14" y="175" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#8a8278" transform="rotate(-90 14 175)">Attack Success Rate (%)</text>
+        </svg>
+      </div>
+      <div class="info-box" style="margin-top:16px; font-size:0.72rem;">
+        All attacks evaluated on the same ResNet-18 model / CIFAR-10 test set. C&W consistently achieves the highest success rate, while JSMA and FGSM are most computationally efficient.
+      </div>
+    </div>
+  </article>
+ 
+  <!-- ─── FIGURE 6 ──────────────────────────────────────── -->
+  <article class="figure-card" id="fig6">
+    <div class="figure-header">
+      <div class="figure-num">06</div>
+      <div class="figure-meta">
+        <div class="figure-title">Robustness–Accuracy Trade-off</div>
+        <div class="figure-subtitle">Adversarial training shifts models toward better robustness at a small accuracy cost</div>
+      </div>
+      <span class="figure-badge badge-data">Analysis</span>
+    </div>
+    <div class="figure-body">
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:2px; padding:28px;">
+        <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-height:300px;">
+          <!-- Grid -->
+          <line x1="70" y1="20" x2="70" y2="250" stroke="#d8d3c8" stroke-width="1"/>
+          <line x1="70" y1="250" x2="570" y2="250" stroke="#d8d3c8" stroke-width="1"/>
+          <line x1="70" y1="20" x2="570" y2="20" stroke="#f0ede6" stroke-width="1" stroke-dasharray="3,3"/>
+          <line x1="70" y1="75" x2="570" y2="75" stroke="#f0ede6" stroke-width="1" stroke-dasharray="3,3"/>
+          <line x1="70" y1="130" x2="570" y2="130" stroke="#f0ede6" stroke-width="1" stroke-dasharray="3,3"/>
+          <line x1="70" y1="185" x2="570" y2="185" stroke="#f0ede6" stroke-width="1" stroke-dasharray="3,3"/>
+ 
+          <!-- Y labels -->
+          <text x="60" y="23" text-anchor="end" font-family="DM Mono,monospace" font-size="9" fill="#8a8278">85%</text>
+          <text x="60" y="78" text-anchor="end" font-family="DM Mono,monospace" font-size="9" fill="#8a8278">80%</text>
+          <text x="60" y="133" text-anchor="end" font-family="DM Mono,monospace" font-size="9" fill="#8a8278">75%</text>
+          <text x="60" y="188" text-anchor="end" font-family="DM Mono,monospace" font-size="9" fill="#8a8278">70%</text>
+          <text x="60" y="253" text-anchor="end" font-family="DM Mono,monospace" font-size="9" fill="#8a8278">65%</text>
+ 
+          <!-- X labels -->
+          <text x="120" y="268" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#8a8278">88%</text>
+          <text x="220" y="268" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#8a8278">90%</text>
+          <text x="320" y="268" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#8a8278">92%</text>
+          <text x="420" y="268" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#8a8278">94%</text>
+          <text x="310" y="285" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#8a8278">Clean Accuracy (%)</text>
+          <text x="14" y="145" text-anchor="middle" font-family="DM Mono,monospace" font-size="9" fill="#8a8278" transform="rotate(-90 14 145)">Adv Accuracy (%)</text>
+ 
+          <!-- Arrows: baseline → hardened -->
+          <!-- ResNet -->
+          <line x1="270" y1="175" x2="330" y2="95" stroke="#c8440c" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowhead)"/>
+          <circle cx="270" cy="175" r="7" fill="white" stroke="#c8440c" stroke-width="2"/>
+          <circle cx="330" cy="95" r="7" fill="#c8440c"/>
+          <text x="280" y="172" font-family="DM Mono,monospace" font-size="8.5" fill="#c8440c">ResNet</text>
+          <text x="338" y="90" font-family="DM Mono,monospace" font-size="8" fill="#c8440c">+adv</text>
+ 
+          <!-- VGG -->
+          <line x1="220" y1="200" x2="280" y2="130" stroke="#2a5fa5" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowhead)"/>
+          <circle cx="220" cy="200" r="7" fill="white" stroke="#2a5fa5" stroke-width="2"/>
+          <circle cx="280" cy="130" r="7" fill="#2a5fa5"/>
+          <text x="228" y="197" font-family="DM Mono,monospace" font-size="8.5" fill="#2a5fa5">VGG</text>
+ 
+          <!-- DenseNet -->
+          <line x1="310" y1="165" x2="370" y2="75" stroke="#2d7a4f" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowhead)"/>
+          <circle cx="310" cy="165" r="7" fill="white" stroke="#2d7a4f" stroke-width="2"/>
+          <circle cx="370" cy="75" r="7" fill="#2d7a4f"/>
+          <text x="320" y="162" font-family="DM Mono,monospace" font-size="8.5" fill="#2d7a4f">DenseNet</text>
+          <text x="352" y="68" font-family="DM Mono,monospace" font-size="7.5" fill="#2d7a4f">Best trade-off ★</text>
+ 
+          <!-- TextCNN -->
+          <line x1="145" y1="220" x2="210" y2="165" stroke="#d4a017" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arrowhead)"/>
+          <circle cx="145" cy="220" r="7" fill="white" stroke="#d4a017" stroke-width="2"/>
+          <circle cx="210" cy="165" r="7" fill="#d4a017"/>
+          <text x="90" y="217" font-family="DM Mono,monospace" font-size="8.5" fill="#d4a017">TextCNN</text>
+ 
+          <!-- Legend -->
+          <circle cx="90" cy="15" r="5" fill="white" stroke="#8a8278" stroke-width="1.5"/>
+          <text x="100" y="18" font-family="DM Mono,monospace" font-size="8" fill="#8a8278">Baseline</text>
+          <circle cx="160" cy="15" r="5" fill="#8a8278"/>
+          <text x="170" y="18" font-family="DM Mono,monospace" font-size="8" fill="#8a8278">After adv. training</text>
+        </svg>
+      </div>
+      <div class="info-box" style="margin-top:16px;">
+        Adversarial training shifts each model: <strong>rightward</strong> (improved robustness) and <strong>upward</strong> (better adversarial accuracy). DenseNet-121 achieves the best overall position in this trade-off space.
+      </div>
+    </div>
+  </article>
+ 
+  <!-- ─── FIGURE 7 ──────────────────────────────────────── -->
+  <article class="figure-card" id="fig7">
+    <div class="figure-header">
+      <div class="figure-num">07</div>
+      <div class="figure-meta">
+        <div class="figure-title">Model Hardening Progress</div>
+        <div class="figure-subtitle">Training loss, clean accuracy, and adversarial accuracy over 30 epochs</div>
+      </div>
+      <span class="figure-badge badge-train">Training</span>
+    </div>
+    <div class="figure-body">
+      <div class="training-grid">
+        <!-- Train Loss -->
+        <div class="training-card">
+          <div class="training-card-header">
+            <div class="training-card-title">Training Loss</div>
+          </div>
+          <div class="training-chart">
+            <svg viewBox="0 0 220 100" xmlns="http://www.w3.org/2000/svg">
+              <polyline points="10,90 30,80 55,65 80,50 105,38 130,28 155,20 180,15 205,13" 
+                fill="none" stroke="#c8440c" stroke-width="2.5" stroke-linejoin="round"/>
+              <line x1="10" y1="95" x2="210" y2="95" stroke="#d8d3c8" stroke-width="1"/>
+              <line x1="10" y1="5" x2="10" y2="95" stroke="#d8d3c8" stroke-width="1"/>
+              <text x="10" y="104" font-family="DM Mono,monospace" font-size="7" fill="#8a8278">0</text>
+              <text x="200" y="104" font-family="DM Mono,monospace" font-size="7" fill="#8a8278">30</text>
+              <text x="215" y="15" font-family="DM Mono,monospace" font-size="7" fill="#c8440c">↓</text>
+            </svg>
+          </div>
+          <div style="padding:0 16px 14px; font-size:0.65rem; color:var(--text-muted);">Converges steadily from epoch 1–30</div>
+        </div>
+ 
+        <!-- Clean Accuracy -->
+        <div class="training-card">
+          <div class="training-card-header">
+            <div class="training-card-title">Clean Accuracy</div>
+          </div>
+          <div class="training-chart">
+            <svg viewBox="0 0 220 100" xmlns="http://www.w3.org/2000/svg">
+              <polyline points="10,80 30,65 55,50 80,40 105,38 130,37 155,36 180,35 205,34" 
+                fill="none" stroke="#2a5fa5" stroke-width="2.5" stroke-linejoin="round"/>
+              <line x1="10" y1="95" x2="210" y2="95" stroke="#d8d3c8" stroke-width="1"/>
+              <line x1="10" y1="5" x2="10" y2="95" stroke="#d8d3c8" stroke-width="1"/>
+              <text x="4" y="36" font-family="DM Mono,monospace" font-size="6.5" fill="#8a8278">93%</text>
+              <text x="4" y="82" font-family="DM Mono,monospace" font-size="6.5" fill="#8a8278">87%</text>
+            </svg>
+          </div>
+          <div style="padding:0 16px 14px; font-size:0.65rem; color:var(--text-muted);">Stabilises around 91–93% after epoch 10</div>
+        </div>
+ 
+        <!-- Adv Accuracy -->
+        <div class="training-card">
+          <div class="training-card-header">
+            <div class="training-card-title">Adversarial Accuracy</div>
+          </div>
+          <div class="training-chart">
+            <svg viewBox="0 0 220 100" xmlns="http://www.w3.org/2000/svg">
+              <polyline points="10,90 30,78 55,60 80,48 105,40 130,33 155,28 180,24 205,22" 
+                fill="none" stroke="#2d7a4f" stroke-width="2.5" stroke-linejoin="round"/>
+              <line x1="10" y1="95" x2="210" y2="95" stroke="#d8d3c8" stroke-width="1"/>
+              <line x1="10" y1="5" x2="10" y2="95" stroke="#d8d3c8" stroke-width="1"/>
+              <text x="4" y="24" font-family="DM Mono,monospace" font-size="6.5" fill="#8a8278">80%</text>
+              <text x="4" y="92" font-family="DM Mono,monospace" font-size="6.5" fill="#8a8278">60%</text>
+            </svg>
+          </div>
+          <div style="padding:0 16px 14px; font-size:0.65rem; color:var(--text-muted);">+10–15% improvement vs. baseline after hardening</div>
+        </div>
+      </div>
+    </div>
+  </article>
+ 
+  <!-- ─── FIGURE 8 ──────────────────────────────────────── -->
+  <article class="figure-card" id="fig8">
+    <div class="figure-header">
+      <div class="figure-num">08</div>
+      <div class="figure-meta">
+        <div class="figure-title">Cross-Model Transferability Heatmap</div>
+        <div class="figure-subtitle">Attack success rate when transferring adversarial examples across architectures</div>
+      </div>
+      <span class="figure-badge badge-perf">Transfer</span>
+    </div>
+    <div class="figure-body">
+      <div class="color-legend">
+        <div class="legend-item"><div class="legend-swatch" style="background:#f0ede6;border:1px solid #d8d3c8;"></div> 60–63%</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#e8d8c8;"></div> 64–67%</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#d4a875;"></div> 68–71%</div>
+        <div class="legend-item"><div class="legend-swatch" style="background:#c08040;"></div> 72–74% (highest)</div>
+      </div>
+      <div class="heatmap-wrap">
+        <table class="heatmap-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;">Target ↓ Source →</th>
+              <th>ResNet-18</th>
+              <th>VGG-16</th>
+              <th>DenseNet-121</th>
+              <th>MobileNetV2</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="row-header">ResNet-18</td>
+              <td class="h-dash">—</td>
+              <td class="h-70">69%</td>
+              <td class="h-70">71%</td>
+              <td class="h-65">64%</td>
+            </tr>
+            <tr>
+              <td class="row-header">VGG-16</td>
+              <td class="h-65">68%</td>
+              <td class="h-dash">—</td>
+              <td class="h-73">73%</td>
+              <td class="h-65">66%</td>
+            </tr>
+            <tr>
+              <td class="row-header">DenseNet-121</td>
+              <td class="h-70">70%</td>
+              <td class="h-73">74%</td>
+              <td class="h-dash">—</td>
+              <td class="h-70">69%</td>
+            </tr>
+            <tr>
+              <td class="row-header">MobileNetV2</td>
+              <td class="h-65">62%</td>
+              <td class="h-65">65%</td>
+              <td class="h-65">67%</td>
+              <td class="h-dash">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="info-box" style="margin-top:16px;">
+        <strong>Highest:</strong> VGG→DenseNet (74%) — these architectures share similar representational features. <strong>Lowest:</strong> ResNet→MobileNet (62%) — lightweight architectures learn different decision boundaries. <strong>Average transfer rate: 68.6%</strong>
+      </div>
+    </div>
+  </article>
+ 
+  <!-- ─── FIGURE 9 ──────────────────────────────────────── -->
+  <article class="figure-card" id="fig9">
+    <div class="figure-header">
+      <div class="figure-num">09</div>
+      <div class="figure-meta">
+        <div class="figure-title">API Response Time Analysis</div>
+        <div class="figure-subtitle">Execution time comparison across attack algorithms (ms)</div>
+      </div>
+      <span class="figure-badge badge-perf">Performance</span>
+    </div>
+    <div class="figure-body">
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:2px;overflow:hidden;">
+        <div class="perf-grid">
+          <!-- Header row -->
+          <div class="perf-name" style="border-bottom:1px solid var(--border);background:var(--text-primary);color:var(--bg);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;padding:10px 12px;">Attack</div>
+          <div style="border-bottom:1px solid var(--border);background:var(--text-primary);padding:10px 12px;font-family:var(--mono);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--bg);">Response Time</div>
+          <div style="border-bottom:1px solid var(--border);background:var(--text-primary);padding:10px 12px;font-family:var(--mono);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);border-left:1px solid #333;text-align:right;">Iterations</div>
+          <div style="border-bottom:1px solid var(--border);background:var(--text-primary);padding:10px 12px;font-family:var(--mono);font-size:0.6rem;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.5);border-left:1px solid #333;text-align:right;">Ratio</div>
+ 
+          <!-- FGSM -->
+          <div class="perf-row">
+            <div class="perf-name">FGSM</div>
+            <div class="perf-bar-cell" style="padding:10px 12px;border-bottom:1px solid var(--border);">
+              <div class="perf-bar-outer">
+                <div class="perf-bar-inner" style="width:2%;background:var(--accent-3);"></div>
+              </div>
+              <div style="font-family:var(--code);font-size:0.68rem;color:var(--text-primary);margin-top:3px;">45 ms</div>
+            </div>
+            <div class="perf-iter">1 iter</div>
+            <div class="perf-iter">1×</div>
+          </div>
+ 
+          <!-- DeepFool -->
+          <div class="perf-row">
+            <div class="perf-name">DeepFool</div>
+            <div class="perf-bar-cell" style="padding:10px 12px;border-bottom:1px solid var(--border);">
+              <div class="perf-bar-outer">
+                <div class="perf-bar-inner" style="width:7%;background:var(--yellow);"></div>
+              </div>
+              <div style="font-family:var(--code);font-size:0.68rem;color:var(--text-primary);margin-top:3px;">178 ms</div>
+            </div>
+            <div class="perf-iter">50 iter</div>
+            <div class="perf-iter">4×</div>
+          </div>
+ 
+          <!-- PGD -->
+          <div class="perf-row">
+            <div class="perf-name">PGD</div>
+            <div class="perf-bar-cell" style="padding:10px 12px;border-bottom:1px solid var(--border);">
+              <div class="perf-bar-outer">
+                <div class="perf-bar-inner" style="width:50%;background:var(--accent-2);"></div>
+              </div>
+              <div style="font-family:var(--code);font-size:0.68rem;color:var(--text-primary);margin-top:3px;">1,200 ms</div>
+            </div>
+            <div class="perf-iter">100 iter</div>
+            <div class="perf-iter">27×</div>
+          </div>
+ 
+          <!-- C&W -->
+          <div class="perf-row">
+            <div class="perf-name">C&amp;W</div>
+            <div class="perf-bar-cell" style="padding:10px 12px;">
+              <div class="perf-bar-outer">
+                <div class="perf-bar-inner" style="width:100%;background:var(--accent);"></div>
+              </div>
+              <div style="font-family:var(--code);font-size:0.68rem;color:var(--text-primary);margin-top:3px;">2,400 ms</div>
+            </div>
+            <div class="perf-iter" style="border-bottom:none;">200 iter</div>
+            <div class="perf-iter" style="border-bottom:none;">53×</div>
+          </div>
+        </div>
+      </div>
+      <div class="info-box" style="margin-top:16px;">
+        FGSM's single-step gradient computation makes it 53× faster than C&W. PGD and C&W offer superior attack strength at the cost of significant compute time — a key consideration for real-time evaluation pipelines.
+      </div>
+    </div>
+  </article>
+ 
+  <!-- ─── FIGURE 10 ─────────────────────────────────────── -->
+  <article class="figure-card" id="fig10">
+    <div class="figure-header">
+      <div class="figure-num">10</div>
+      <div class="figure-meta">
+        <div class="figure-title">Robustness Certification</div>
+        <div class="figure-subtitle">Randomized smoothing — certified ℓ₂ radius vs noise level σ</div>
+      </div>
+      <span class="figure-badge badge-perf">Certification</span>
+    </div>
+    <div class="figure-body">
+      <div class="cert-grid">
+        <!-- VGG -->
+        <div class="cert-card">
+          <div class="cert-model">VGG-16</div>
+          <div class="cert-circle-wrap">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <circle class="cert-circle-bg" cx="50" cy="50" r="40"/>
+              <circle class="cert-circle-fill" cx="50" cy="50" r="40"
+                stroke="#2a5fa5"
+                stroke-dasharray="251.2"
+                stroke-dashoffset="108"/>
+            </svg>
+            <div class="cert-val">0.43</div>
+          </div>
+          <div class="cert-stats">
+            <div class="cert-stat">
+              <span class="cert-stat-label">Noise σ</span>
+              <span class="cert-stat-val">0.11</span>
+            </div>
+            <div class="cert-stat">
+              <span class="cert-stat-label">Cert. acc</span>
+              <span class="cert-stat-val">62.4%</span>
+            </div>
+            <div class="cert-stat">
+              <span class="cert-stat-label">Clean acc</span>
+              <span class="cert-stat-val">91.8%</span>
+            </div>
+            <div class="cert-stat">
+              <span class="cert-stat-label">Cert. radius</span>
+              <span class="cert-stat-val">r=0.43</span>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- ResNet -->
+        <div class="cert-card" style="border-color:var(--accent);">
+          <div class="cert-model">ResNet-18</div>
+          <div class="cert-circle-wrap">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <circle class="cert-circle-bg" cx="50" cy="50" r="40"/>
+              <circle class="cert-circle-fill" cx="50" cy="50" r="40"
+                stroke="#c8440c"
+                stroke-dasharray="251.2"
+                stroke-dashoffset="96"/>
+            </svg>
+            <div class="cert-val">0.47</div>
+          </div>
+          <div class="cert-stats">
+            <div class="cert-stat">
+              <span class="cert-stat-label">Noise σ</span>
+              <span class="cert-stat-val">0.12</span>
+            </div>
+            <div class="cert-stat">
+              <span class="cert-stat-label">Cert. acc</span>
+              <span class="cert-stat-val">64.8%</span>
+            </div>
+            <div class="cert-stat">
+              <span class="cert-stat-label">Clean acc</span>
+              <span class="cert-stat-val">92.3%</span>
+            </div>
+            <div class="cert-stat">
+              <span class="cert-stat-label">Cert. radius</span>
+              <span class="cert-stat-val">r=0.47</span>
+            </div>
+          </div>
+        </div>
+ 
+        <!-- DenseNet -->
+        <div class="cert-card" style="border-color:var(--accent-3);">
+          <div class="cert-model">DenseNet-121 ★</div>
+          <div class="cert-circle-wrap">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <circle class="cert-circle-bg" cx="50" cy="50" r="40"/>
+              <circle class="cert-circle-fill" cx="50" cy="50" r="40"
+                stroke="#2d7a4f"
+                stroke-dasharray="251.2"
+                stroke-dashoffset="82"/>
+            </svg>
+            <div class="cert-val">0.52</div>
+          </div>
+          <div class="cert-stats">
+            <div class="cert-stat">
+              <span class="cert-stat-label">Noise σ</span>
+              <span class="cert-stat-val">0.13</span>
+            </div>
+            <div class="cert-stat">
+              <span class="cert-stat-label">Cert. acc</span>
+              <span class="cert-stat-val">67.1%</span>
+            </div>
+            <div class="cert-stat">
+              <span class="cert-stat-label">Clean acc</span>
+              <span class="cert-stat-val">92.3%</span>
+            </div>
+            <div class="cert-stat">
+              <span class="cert-stat-label">Cert. radius</span>
+              <span class="cert-stat-val">r=0.52</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="info-box" style="margin-top:16px;">
+        <strong>DenseNet-121</strong> achieves the largest certified radius (r=0.52 in ℓ₂ norm) — meaning all misclassified samples are provably at least 0.52 away from the decision boundary. Higher σ yields larger certificates but reduces clean accuracy. This is the fundamental smoothing trade-off.
+      </div>
+    </div>
+  </article>
+ 
+</main>
+ 
+<!-- ═══ FOOTER ══════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">CERBERUS</div>
+    <div>Adversarial Robustness Research Platform — 10 Attacks · 13 Models · 2 Datasets</div>
+    <div>Figures 1–10</div>
+  </div>
+</footer>
+ 
+<script>
+  // Animate bars on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+ 
+  document.querySelectorAll('.figure-card').forEach((card, i) => {
+    card.style.animationDelay = `${i * 0.05}s`;
+    observer.observe(card);
+  });
+</script>
+</body>
+</html>

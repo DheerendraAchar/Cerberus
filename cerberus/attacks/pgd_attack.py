@@ -78,26 +78,34 @@ class PGDAttack:
         delta = delta.to(self.device)
         delta.requires_grad = True
         
+        # Ensure model doesn't require gradients (we only need input gradients)
+        for p in self.model.parameters():
+            p.requires_grad = False
+        
         # Iterative attack
         for iteration in range(self.max_iter):
-            # Forward pass
-            x_adv = images + delta
-            x_adv = torch.clamp(x_adv, 0, 1)
+            # Create a fresh variable for x_adv each iteration to track gradients
+            delta_copy = delta.clone().detach().requires_grad_(True)
+            x_adv = torch.clamp(images + delta_copy, 0, 1)
             
             self.model.eval()
-            outputs = self.model(x_adv)
-            loss = self.criterion(outputs, labels)
+            with torch.enable_grad():
+                outputs = self.model(x_adv)
+                loss = self.criterion(outputs, labels)
+                loss.backward()
             
-            # Backward pass
-            self.model.zero_grad()
-            if delta.grad is not None:
-                delta.grad.zero_()
-            
-            loss.backward()
+            # Get gradients from delta
+            if delta_copy.grad is None:
+                print(f"WARNING: delta_copy.grad is None at iteration {iteration}")
+                break
             
             # PGD step: move in gradient direction
             with torch.no_grad():
-                delta += self.eps_step * delta.grad.sign()
+                # Use gradient from delta_copy
+                grad_sign = delta_copy.grad.sign()
+                
+                # Update delta
+                delta = delta + self.eps_step * grad_sign
                 
                 # Project back to epsilon ball
                 delta = torch.clamp(delta, -self.eps, self.eps)
